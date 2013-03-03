@@ -1,0 +1,13 @@
+#!/bin/bash
+## @author sdrfnord
+## @license GPLv3+
+
+# file -b gqrx/gqrx-xxxxxxxx-xxxxxx.wav
+## sox_samp=48000 /(48000 * 2 / 22050)
+
+if [ ! -r "$1" ]; then
+	echo "Please give me the path to the wav file"
+	exit 1
+fi
+
+sox -t wav "$1" -esigned-integer -b16 -r 11026.878 -t raw - | multimonNG -s UFSK1200 -s ZVEI - $@
