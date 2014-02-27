@@ -10,4 +10,6 @@ if [ ! -r "$1" ]; then
 	exit 1
 fi
 
-sox -t wav "$1" -esigned-integer -b16 -r 11026.878 -t raw - | multimonNG -s UFSK1200 -s ZVEI - $@
+sox -t wav "$1" -esigned-integer -b16 -r 11026.878 -t raw - | multimonNG -s UFSK1200 -s ZVEI -s SCOPE - $@
+# sox -t wav "$1" -esigned-integer -b16 -r 11026.878 -t raw - | multimonNG -s ZVEI - $@
+# sox -t wav "$1" -esigned-integer -b16 -r 11026.878 -t raw - | multimonNG -c -a POCSAG1200 -a POCSAG512 - $@

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ "$1" == "start" ]; then
+    service network-manager stop
+    rfkill unblock 0
+    rfkill unblock 2
+    rfkill unblock 0
+    rfkill unblock 2
+    rfkill list
+    airmon-ng start wlan0
+    airodump-ng wlan0
+elif [ "$1" == "stop" ]; then
+    airmon-ng stop mon0
+    airmon-ng stop wlan0
+    service network-manager start
+else
+    echo 'Please call script with "start" or "stop".'
+fi
