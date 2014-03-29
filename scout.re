@@ -8,20 +8,36 @@ import subprocess
 import time
 import filecmp
 import socket
+from ConfigParser import ConfigParser
 
 class scout():
     def __init__(self,
             base_config_path = '%s/.scout' % os.environ['HOME'],
-            ssh_identity_file = os.path.join(os.environ['HOME'], '.ssh', 'id_rsa'),
+            ssh_identity_file = None,
             ssh_known_hosts_file = os.path.join(os.environ['HOME'], '.ssh', 'initrd_known_hosts'),
-            shell_promt_regex = '~ # '
+            shell_promt_regex = '~ # ',
+            config_file = '.config.cfg',
+
             ):
         self._base_config_path = base_config_path
-        self._ssh_parms = ssh_parms = '-i %s -o UserKnownHostsFile=%s' % (ssh_identity_file, ssh_known_hosts_file)
+
+        self._ssh_parms = ssh_parms = '%s -o UserKnownHostsFile=%s' % (
+                '-i %s' % ssh_identity_file if ssh_identity_file != None else '',
+                ssh_known_hosts_file
+                )
         self._hash_check_program = os.path.join(self._base_config_path, 'hashdeep')
         self._shell_promt_regex = re.compile(shell_promt_regex)
         if os.path.isfile(self._hash_check_program) == False:
             raise Exception('File %s not found.' % self._hash_check_program)
+
+        cfg_file = os.path.join(self._base_config_path, config_file)
+        cfg_file_permissions = oct(os.stat(cfg_file).st_mode)
+        if cfg_file_permissions[-3:] != '600':
+            logging.warning('Configuration file (which usually contains passwords) has more file permissions than needed (%s).' % cfg_file_permissions[-4:]
+                    + '\n    Please change this by executing the following command: chmod 0600 \'%s\'' % cfg_file)
+            sys.exit(20)
+        self._cfg = ConfigParser()
+        self._cfg.read(cfg_file)
 
     def _netcat(self, hostname, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,6 +57,16 @@ class scout():
         """ True if something like SSH-2.0-OpenSSH_6.0p1 Debian-4. """
         return re.search(r'openssh', ssh_version_string, flags=re.IGNORECASE)
 
+    def _unlock_disks(self, hostname, child):
+        """ Get password and unlock system. """
+
+        if self._cfg.has_option(hostname, 'password'):
+            passwd = self._cfg.get(hostname, 'password')
+        else:
+            passwd = raw_input('Please enter the unlock password for %s' % hostname)
+        child.sendline('echo -n \'%s\' > /lib/cryptsetup/passfifo' % passwd)
+        child.interact()
+
     def main(self, hostname, keyfile, port=22):
         self._ssh_parms += ' root@%s' % hostname
         self._hash_file = os.path.join(self._base_config_path, '%s_initrd_hashlist' % hostname)
@@ -55,9 +81,10 @@ class scout():
                     logging.warning('Waiting for pre-boot environment …')
                 else: # Dropbear
                     logging.info('Preparing pre-boot integrity check …')
-                    print os.system('cat %s | ssh %s cat ">" /root/hashdeep' % (
+                    if os.system('cat %s | ssh %s cat ">" /root/hashdeep' % (
                         os.path.join(self._base_config_path, self._hash_check_program), self._ssh_parms)
-                        ) == 0
+                        ) != 0:
+                        raise Exception('Could not copy hashdeep over to %s.' % hostname)
                     child = pexpect.spawn('ssh %s' % self._ssh_parms)
                     child.expect(r'BusyBox v1\.20\.2 \(Debian 1:1\.20\.0-7\) built-in shell \(ash\)')
                     child.expect(r"Enter 'help' for a list of built-in commands.")
@@ -65,6 +92,8 @@ class scout():
                     child.sendline('chmod 500 /root/hashdeep')
                     if os.path.isfile(self._hash_file) == True:
                         os.rename(self._hash_file, self._hash_file_old)
+                    else:
+                        logging.info('No checksums found to compare to.')
                     child.expect(self._shell_promt_regex)
                     new_hash_file_fh = file(self._hash_file, 'w')
                     child.sendline("/root/hashdeep -r -c sha256 /bin /conf /etc /init /root /sbin /scripts /lib/lib* /lib/klibc* /lib/modules/ /tmp /usr | sed -e '/^#/d' -e '/^%/d'| sort")
@@ -74,19 +103,20 @@ class scout():
                     child.expect(self._shell_promt_regex)
                     child.logfile = None
                     new_hash_file_fh.close()
-                    print filecmp.cmp(self._hash_file, self._hash_file_old)
-                    child.interact()
-
+                    if os.path.isfile(self._hash_file_old) == True:
+                        if filecmp.cmp(self._hash_file, self._hash_file_old) == False:
+                            logging.warning('Changes from last boot checksum detected:')
+                            os.system('comm -13 "%s" "%s" | cut -d "," -f 3' % (self._hash_file, self._hash_file_old))
+                            if not re.match(r'YES', raw_input('\nDo you want to continue anyway (YES/NO)? ')):
+                                sys.exit(1)
+                            else:
+                                self._unlock_disks(hostname, child)
+                    else:
+                        self._unlock_disks(hostname, child)
             else:
-                logging.warning('Host offline. Waiting …')
+                logging.info('Host offline. Waiting …')
 
             time.sleep(5)
-
-
-        opt_ssh_parm = ''
-        if keyfile != None:
-            opt_ssh_parm += '-i "%s"' % keyfile
-
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -94,12 +124,12 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         # level=logging.INFO,
         )
-    keyfile = None
+    ssh_identity_file = None
 
     if len(sys.argv) > 1:
         hostname = sys.argv[1]
         if len(sys.argv) > 2:
-            keyfile = sys.argv[2]
+            ssh_identity_file = sys.argv[2]
     else:
         logging.error('Not enough parameters.'
                 + ' 1. Hostname/IP Address.'
@@ -108,4 +138,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     scout = scout()
-    scout.main(hostname, keyfile)
+    scout.main(hostname, ssh_identity_file)
