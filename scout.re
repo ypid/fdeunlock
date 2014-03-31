@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# This script allows you to unlock encrypted systems via ssh after checking that the initrd has not been tampered with.
+# Improved version of https://falkhusemann.de/blog/wp-content/uploads/2013/10/scout.tar.gz (Bash) in Python.
+# See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more information.
 
 import pexpect
 import logging, sys, re, os
@@ -10,6 +13,9 @@ import filecmp
 import socket
 from ConfigParser import ConfigParser
 
+# ToDo
+# * Read MAC address of target and compare to last time if a MAC address is present for target after ping.
+
 class scout():
     def __init__(self,
             base_config_path = '%s/.scout' % os.environ['HOME'],
@@ -17,7 +23,6 @@ class scout():
             ssh_known_hosts_file = os.path.join(os.environ['HOME'], '.ssh', 'initrd_known_hosts'),
             shell_promt_regex = '~ # ',
             config_file = '.config.cfg',
-
             ):
         self._base_config_path = base_config_path
 
@@ -60,12 +65,15 @@ class scout():
     def _unlock_disks(self, hostname, child):
         """ Get password and unlock system. """
 
+        child.sendline('')
+        child.expect(self._shell_promt_regex)
         if self._cfg.has_option(hostname, 'password'):
             passwd = self._cfg.get(hostname, 'password')
         else:
             passwd = raw_input('Please enter the unlock password for %s' % hostname)
         child.sendline('echo -n \'%s\' > /lib/cryptsetup/passfifo' % passwd)
-        child.interact()
+        child.expect('exit')
+        # child.interact()
 
     def main(self, hostname, keyfile, port=22):
         self._ssh_parms += ' root@%s' % hostname
@@ -78,8 +86,9 @@ class scout():
                     logging.info('Normal SSH Server is present. Unlocking seems to be not necessary.')
                     sys.exit(1)
                 elif not self._is_preboot(ssh_version_string):
-                    logging.warning('Waiting for pre-boot environment …')
+                    logging.info('Waiting for pre-boot environment …')
                 else: # Dropbear
+                    time.sleep(3) # Dropbear needs a bit time to start.
                     logging.info('Preparing pre-boot integrity check …')
                     if os.system('cat %s | ssh %s cat ">" /root/hashdeep' % (
                         os.path.join(self._base_config_path, self._hash_check_program), self._ssh_parms)
@@ -97,20 +106,18 @@ class scout():
                     child.expect(self._shell_promt_regex)
                     new_hash_file_fh = file(self._hash_file, 'w')
                     child.sendline("/root/hashdeep -r -c sha256 /bin /conf /etc /init /root /sbin /scripts /lib/lib* /lib/klibc* /lib/modules/ /tmp /usr | sed -e '/^#/d' -e '/^%/d'| sort")
-                    print child.logfile
                     logging.info('Verifying pre-boot environment …')
                     child.logfile = new_hash_file_fh
                     child.expect(self._shell_promt_regex)
                     child.logfile = None
                     new_hash_file_fh.close()
-                    if os.path.isfile(self._hash_file_old) == True:
-                        if filecmp.cmp(self._hash_file, self._hash_file_old) == False:
-                            logging.warning('Changes from last boot checksum detected:')
-                            os.system('comm -13 "%s" "%s" | cut -d "," -f 3' % (self._hash_file, self._hash_file_old))
-                            if not re.match(r'YES', raw_input('\nDo you want to continue anyway (YES/NO)? ')):
-                                sys.exit(1)
-                            else:
-                                self._unlock_disks(hostname, child)
+                    if os.path.isfile(self._hash_file_old) == True and filecmp.cmp(self._hash_file, self._hash_file_old) == False:
+                        logging.warning('Changes from last boot checksum detected:')
+                        os.system('comm -13 "%s" "%s" | cut -d "," -f 3' % (self._hash_file, self._hash_file_old))
+                        if not re.match(r'YES', raw_input('\nDo you want to continue anyway (YES/NO)? ')):
+                            sys.exit(1)
+                        else:
+                            self._unlock_disks(hostname, child)
                     else:
                         self._unlock_disks(hostname, child)
             else:
