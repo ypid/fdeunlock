@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Always exit on errors
+set -e
+# Undefined variables, we don't like you
+# set -u
+# ERR traps are inherited by shell functions, command substitutions and
+# commands executed in a subshell environment.
+set -E
+
+start_in_stealth_mode=()
+stop_in_stealth_mode=('avahi-daemon')
+
+
+case "$1" in
+    start)
+        for service in $stop_in_stealth_mode; do
+            service "$service" stop
+        done
+        for service in $start_in_stealth_mode; do
+            service "$service" start
+        done
+        ;;
+    stop)
+        for service in $stop_in_stealth_mode; do
+            service "$service" start
+        done
+        for service in $start_in_stealth_mode; do
+            service "$service" stop
+        done
+        ;;
+    *)
+        echo 'Please call script with "start" or "stop".'
+        ;;
+esac

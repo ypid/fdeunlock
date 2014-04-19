@@ -4,6 +4,8 @@
 # Improved version of https://falkhusemann.de/blog/wp-content/uploads/2013/10/scout.tar.gz (Bash) in Python.
 # See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more information.
 
+# Debian packages: python-pyip
+
 import pexpect
 import logging, sys, re, os
 import ping
@@ -62,6 +64,9 @@ class scout():
         """ True if something like SSH-2.0-OpenSSH_6.0p1 Debian-4. """
         return re.search(r'openssh', ssh_version_string, flags=re.IGNORECASE)
 
+    def _exit_gracefully(self, child):
+        child.sendline('exit')
+
     def _unlock_disks(self, hostname, child):
         """ Get password and unlock system. """
 
@@ -72,16 +77,26 @@ class scout():
         else:
             passwd = raw_input('Please enter the unlock password for %s' % hostname)
         child.sendline('echo -n \'%s\' > /lib/cryptsetup/passfifo' % passwd)
-        child.expect('exit')
+        self._disk_unlocked = True
+        self._exit_gracefully(child)
         # child.interact()
 
     def main(self, hostname, keyfile, port=22):
         self._ssh_parms += ' root@%s' % hostname
         self._hash_file = os.path.join(self._base_config_path, '%s_initrd_hashlist' % hostname)
         self._hash_file_old = '%s.1' % self._hash_file
+        self._disk_unlocked = False
         while True:
             if self._is_alive(hostname):
-                ssh_version_string = self._netcat(hostname, port)
+                try:
+                    ssh_version_string = self._netcat(hostname, port)
+                except socket.error:
+                    if self._disk_unlocked == True:
+                        print "Server should be booting now."
+                        sys.exit(0)
+                    else:
+                        print "SSH server not responding."
+                        sys.exit(1)
                 if self._is_normal_os(ssh_version_string):
                     logging.info('Normal SSH Server is present. Unlocking seems to be not necessary.')
                     sys.exit(1)
@@ -115,7 +130,7 @@ class scout():
                         logging.warning('Changes from last boot checksum detected:')
                         os.system('comm -13 "%s" "%s" | cut -d "," -f 3' % (self._hash_file, self._hash_file_old))
                         if not re.match(r'YES', raw_input('\nDo you want to continue anyway (YES/NO)? ')):
-                            sys.exit(1)
+                            self._exit_gracefully(child)
                         else:
                             self._unlock_disks(hostname, child)
                     else:

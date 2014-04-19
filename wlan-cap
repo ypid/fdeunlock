@@ -4,7 +4,7 @@
 # Always exit on errors
 set -e
 # Undefined variables, we don't like you
-set -u
+# set -u
 # ERR traps are inherited by shell functions, command substitutions and
 # commands executed in a subshell environment.
 set -E
