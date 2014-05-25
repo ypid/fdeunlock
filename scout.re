@@ -17,6 +17,7 @@ from ConfigParser import ConfigParser
 
 # ToDo
 # * Read MAC address of target and compare to last time if a MAC address is present for target after ping.
+# * Add option to run just validation during normal operation.
 
 class scout():
     def __init__(self,
@@ -54,7 +55,7 @@ class scout():
         return repr(data)
 
     def _is_alive(self, hostname):
-        return True if os.system('fping -c 2 -q -T5 "%s"' % hostname) == 0 else False
+        return True if os.system('ping -c 1 "%s"' % hostname) == 0 else False
 
     def _is_preboot(self, ssh_version_string):
         """ True if something like SSH-2.0-dropbear_2012.55. """
@@ -91,12 +92,8 @@ class scout():
                 try:
                     ssh_version_string = self._netcat(hostname, port)
                 except socket.error:
-                    if self._disk_unlocked == True:
-                        print "Server should be booting now."
-                        sys.exit(0)
-                    else:
-                        print "SSH server not responding."
-                        sys.exit(1)
+                    print "SSH server not responding."
+                    sys.exit(1)
                 if self._is_normal_os(ssh_version_string):
                     logging.info('Normal SSH Server is present. Unlocking seems to be not necessary.')
                     sys.exit(1)
@@ -105,7 +102,7 @@ class scout():
                 else: # Dropbear
                     time.sleep(3) # Dropbear needs a bit time to start.
                     logging.info('Preparing pre-boot integrity check …')
-                    if os.system('cat %s | ssh %s cat ">" /root/hashdeep' % (
+                    if os.system('cat %s | ssh %s "cat > /root/hashdeep"' % (
                         os.path.join(self._base_config_path, self._hash_check_program), self._ssh_parms)
                         ) != 0:
                         raise Exception('Could not copy hashdeep over to %s.' % hostname)
@@ -131,10 +128,14 @@ class scout():
                         os.system('comm -13 "%s" "%s" | cut -d "," -f 3' % (self._hash_file, self._hash_file_old))
                         if not re.match(r'YES', raw_input('\nDo you want to continue anyway (YES/NO)? ')):
                             self._exit_gracefully(child)
+                            sys.exit(1)
                         else:
                             self._unlock_disks(hostname, child)
                     else:
                         self._unlock_disks(hostname, child)
+                    if self._disk_unlocked == True:
+                        print "Server should be booting now."
+                        sys.exit(0)
             else:
                 logging.info('Host offline. Waiting …')
 
