@@ -4,12 +4,11 @@
 # wireshark_manuf_file="`locate wireshark-manuf`"
 wireshark_manuf_file="$HOME/Downloads/db/wireshark-manuf"
 
-
 rand_mac_line=`grep -v '^#' "$wireshark_manuf_file"| \
     grep -P ' (Intl|Hwlett-|Fujitsu) ' \
     | shuf -n 1`
 
-echo "Manufacture for your MAC address: ${rand_mac_line}."
+echo "Manufacture which uses this MAC address: ${rand_mac_line}."
 rand_mac_manf_part=${rand_mac_line:0:8}
 rand_mac_random_part="`openssl rand -hex 3 | sed 's/\(..\)/\1:/g; s/.$//'`"
 rand_mac="${rand_mac_manf_part}:${rand_mac_random_part}"
