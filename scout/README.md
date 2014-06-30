@@ -1,6 +1,6 @@
 # scout – Check the integrity of the initrd and mount encrypted root filesystem from remote
 
-This script allows you to unlock encrypted systems via ssh after checking that the initrd has not been tampered with.
+This script allows you to unlock encrypted linux systems via ssh after checking that the initrd has not been tampered with.
 It is a reimplementation in Python of the bash script script scout.bash which is under the directory scout-bash for reference and further documentation (most of it also applies for this reimplementation).
 
 ## List of advantages over the bash implementation
@@ -13,12 +13,13 @@ It is a reimplementation in Python of the bash script script scout.bash which is
 
 ## List of disadvantages over the bash implementation
 
-* Has more dependencies.
+* Has more dependencies on the client system.
 * Only tested for one Debian stable system over several months. Might need some
   modification to work with your system (mainly because I am very paranoid and
-  the script checks against version numbers of ssh, needs to be done more
-  general or the be configurable).
+  the script checks against version numbers of ssh, on [todo list](#todo)).
 
 ## ToDo
 * Read MAC address of target and compare to last time if a MAC address is present for target after ping.
 * Add option to run just validation during normal operation.
+* Added more configuration options for version numbers of SSH server to make it easier usable for others.
+* Write more user documentation.

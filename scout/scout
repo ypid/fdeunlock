@@ -3,7 +3,7 @@
 # @author sdrfnord
 # @license GPLv3+
 """
-This script allows you to unlock encrypted systems via ssh after checking that the initrd has not been tampered with.
+This script allows you to unlock encrypted linux systems via ssh after checking that the initrd has not been tampered with.
 Improved version of https://falkhusemann.de/blog/wp-content/uploads/2013/10/scout.tar.gz (Bash) in Python.
 See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more information.
 """
