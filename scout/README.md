@@ -21,5 +21,5 @@ It is a reimplementation in Python of the bash script script scout.bash which is
 ## ToDo
 * Read MAC address of target and compare to last time if a MAC address is present for target after ping.
 * Add option to run just validation during normal operation.
-* Added more configuration options for version numbers of SSH server to make it easier usable for others.
+* Add more configuration options for version numbers of SSH server to make it easier usable for others.
 * Write more user documentation.
