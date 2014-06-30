@@ -3,9 +3,15 @@
 # @author sdrfnord
 # @license GPLv3+
 """
-This script allows you to unlock encrypted linux systems via ssh after checking that the initrd has not been tampered with.
-Improved version of https://falkhusemann.de/blog/wp-content/uploads/2013/10/scout.tar.gz (Bash) in Python.
-See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more information.
+This script allows you to unlock encrypted linux systems via ssh after checking
+that the initrd has not been tampered with.
+
+Improved version of
+https://falkhusemann.de/blog/wp-content/uploads/2013/10/scout.tar.gz (Bash) in
+Python.
+
+See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more
+information.
 """
 
 # This program is free software: you can redistribute it and/or modify
@@ -36,7 +42,7 @@ import filecmp
 from ConfigParser import ConfigParser
 
 
-class scout():
+class Scout():
 
     def __init__(self,
                  base_config_path='%s/.scout' % os.environ['HOME'],
@@ -64,8 +70,10 @@ class scout():
         cfg_file = os.path.join(self._base_config_path, config_file)
         cfg_file_permissions = oct(os.stat(cfg_file).st_mode)
         if cfg_file_permissions[-3:] != '600':
-            logging.warning('Configuration file (which usually contains passwords) has more file permissions than needed (%s).' % cfg_file_permissions[-4:]
-                            + '\n    Please change this by executing the following command: chmod 0600 \'%s\'' % cfg_file)
+            logging.warning(
+                'Configuration file (which usually contains passwords)'
+                + ' has more file permissions than needed (%s).' % cfg_file_permissions[-4:]
+                + '\n    Please change this by executing the following command: chmod 0600 \'%s\'' % cfg_file)
             sys.exit(20)
         self._cfg = ConfigParser()
         self._cfg.read(cfg_file)
@@ -131,8 +139,11 @@ class scout():
                 else:  # Dropbear
                     time.sleep(3)  # Dropbear needs a bit time to start.
                     logging.info('Preparing pre-boot integrity check …')
-                    if os.system('cat %s | ssh %s "cat > /root/hashdeep"' % (
-                        os.path.join(self._base_config_path, self._hash_check_program), self._ssh_parms)
+                    if os.system(
+                        'cat %s | ssh %s "cat > /root/hashdeep"' % (
+                            os.path.join(self._base_config_path, self._hash_check_program),
+                            self._ssh_parms
+                        )
                     ) != 0:
                         raise Exception(
                             'Could not copy hashdeep over to %s.' %
@@ -151,7 +162,11 @@ class scout():
                     child.expect(self._shell_promt_regex)
                     new_hash_file_fh = file(self._hash_file, 'w')
                     child.sendline(
-                        "/root/hashdeep -r -c sha256 /bin /conf /etc /init /root /sbin /scripts /lib/lib* /lib/klibc* /lib/modules/ /tmp /usr | sed -e '/^#/d' -e '/^%/d'| sort")
+                        '/root/hashdeep -r -c sha256'
+                        + ' /bin /conf /etc /init /root /sbin /scripts'
+                        + ' /lib/lib* /lib/klibc* /lib/modules/ /tmp /usr'
+                        + " | sed -e '/^#/d' -e '/^%/d'| sort"
+                    )
                     logging.info('Verifying pre-boot environment …')
                     child.logfile = new_hash_file_fh
                     child.expect(self._shell_promt_regex)
@@ -197,5 +212,5 @@ if __name__ == '__main__':
                       )
         sys.exit(1)
 
-    scout = scout()
+    scout = Scout()
     scout.main(hostname, ssh_identity_file)
