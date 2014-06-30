@@ -16,4 +16,4 @@ Das Script ist eine neu Implementierung in Python auf Basis des Bash Skripts sco
 * Mehr Software Abhängigkeiten auf dem Client System.
 * Bislang nur mit Debian stable über mehrere Monate getestet. Es sind eventuell Anpassungen notwendig, wenn andere Systeme benutzt werden (hauptsächlich, da ich relativ paranoid bin und gegen bestimme Versionsnummern teste. Ist auf der [Todo Liste][todo]).
 
-[todo]: /#todo
+[todo]: /scout/#todo
