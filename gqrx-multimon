@@ -1,6 +1,7 @@
 #!/bin/bash
 ## @author sdrfnord
 ## @license GPLv3+
+# Decode POCSAG from wav file.
 
 # file -b gqrx/gqrx-xxxxxxxx-xxxxxx.wav
 ## sox_samp=48000 /(48000 * 2 / 22050)

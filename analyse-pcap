@@ -1,5 +1,7 @@
 #!/bin/bash
-# Analyse pcap files.
+# @author sdrfnord
+# @license GPLv3+
+# Analyse pcap files with a serious of programs.
 
 file="$1"
 dir="$file.analysis"

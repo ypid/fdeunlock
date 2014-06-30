@@ -1,4 +1,7 @@
 #!/bin/bash
+# @author sdrfnord
+# @license GPLv3+
+# Generate random but valid mac address for certain vendors.
 
 # Too slow ;)
 # wireshark_manuf_file="`locate wireshark-manuf`"

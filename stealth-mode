@@ -1,4 +1,8 @@
 #!/bin/bash
+# @author sdrfnord
+# @license GPLv3+
+# Disable all unneeded daemons and other stuff to put my system into stealth mode ;)
+# Disable network activity as far as possible in this mode.
 
 # Always exit on errors
 set -e

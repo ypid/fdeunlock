@@ -1,0 +1,24 @@
+Um korrekt zu funktionieren, wird eine statisch kompilierte Version
+von md5deep benoetigt. Diese muss fuer die Zielarchitektur des 
+Servers kompiliert werden. 
+
+Ein binary liegt für ganz mutige bei, solltet ihr aber nicht benutzen.
+
+Da Client und Server-Architektur meist
+amd64 sind, kann das ohne Cross-Compiler Toolchain einfach wie folgt
+erledigt werden.
+
+
+apt-get install dpkg-dev
+apt-get build-dep md5deep
+apt-get source  md5deep
+cd md5deep-3.6/
+./configure
+cd hashdeep
+make
+strip hashdeep
+
+Sollteb Ziel- und Quellarchitektur nicht übereinstimmen, bist du ein
+Randfall.
+
+Viel Glück!

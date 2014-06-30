@@ -1,0 +1,51 @@
+
+INSTALLATION
+============
+
+* Skript ausführbar machen
+* Sicherstellen, dass skript im aktuellen Verz.
+Schreibrechte hat
+* Sicherstellen, dass Hilfsprogramm "hashdeep"
+ausführbar ist und im Verzeichnis ~/.scout/
+
+Skript wie folgt ausführen:
+
+./scout.bash username@host /pad/zur/dropbear/id_rsa
+
+FUNKTION
+========
+
+Das Skript kann gestartet werden, während der Server
+noch nicht neugestartet wurde. Es erkennt, ob 
+die Pre-Boot Umgebung vorhanden ist.
+
+Ist die Umgebung nicht vorhanden, wartet es darauf.
+
+Sobald die Umgebung vorhanden ist, kopiert scout
+das Programm hashdeep in die Pre-Boot Umgebung und
+macht es ausführbar. Dann werden Prüfsummen aller
+wichtigen Dateien der Umgebung gebildet.
+
+Bei jedem Aufruf nach dem zweiten Aufruf werden die
+vorhandenen Prüfsummen in der Datei "initrd_hashes.old"
+mit den gerade erzeugten in "initrd_hashes" verglichen.
+
+Stimmen die Prüfsummen überein, wird das Passwort verlangt.
+Wenn nicht, wird gewarnt und der Unterschied angezeigt.
+
+TYPISCHE AUSGABE
+================
+
+Host offline. Waiting ...
+Host offline. Waiting ...
+Host offline. Waiting ...
+Host offline. Waiting ...
+Host offline. Waiting ...
+Host offline. Waiting ...
+Host offline. Waiting ...
+Waiting for pre-boot environment ...
+Preparing pre-boot integrity check...
+Verifying pre-boot environment...
+Checksums OK!
+
+hxgn unlock Password: 

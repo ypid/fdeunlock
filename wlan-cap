@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to easily set your wireless card in promiscuous mode and show the IEEE 802.11 frames that are flowing around you.
+# Script to easily set your wireless card in monitor mode and show the IEEE 802.11 frames that are flowing around you.
 
 # Always exit on errors
 set -e

@@ -32,10 +32,6 @@ import filecmp
 import socket
 from ConfigParser import ConfigParser
 
-# ToDo
-# * Read MAC address of target and compare to last time if a MAC address is present for target after ping.
-# * Add option to run just validation during normal operation.
-
 class scout():
     def __init__(self,
             base_config_path = '%s/.scout' % os.environ['HOME'],
