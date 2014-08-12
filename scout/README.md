@@ -9,7 +9,7 @@ It is a reimplementation in Python of the bash script script scout.bash which is
 * Improved error handling using pexpect (a certain behavior of the remote shell is expected and tested).
 * Much cleaner implemented which allows easier extensibility.
 * Encryption password can be read from a configuration password (or from stdin as in the bash version).
-* Addition security related features might come in the future (see [todo](#todo)).
+* Additional security related features might come in the future (see [todo](#todo)).
 
 ## List of disadvantages over the bash implementation
 
