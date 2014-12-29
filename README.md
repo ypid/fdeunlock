@@ -7,6 +7,14 @@
 * wlan-cap: Script to easily set your wireless card in monitor mode and show the IEEE 802.11 frames that are flowing around you.
 * gqrx-multimon: Decode POCSAG from wav file.
 
+# GPG signing
+Every commit and each git tag is gpg signed by my key
+
+    pub   4096R/EF9A8AFD 2013-02-12 [expires: 2018-02-11]
+        Key fingerprint = 0822 F8F2 03D2 D239 4738  F303 952D 48DA EF9A 8AFD
+    uid                  sdrfnord <sdrfnord@gmx.de>
+    sub   4096R/B43B982B 2013-02-12 [expires: 2018-02-11]
+
 # Lisence
 
 All scripts are published under GPLv3+
