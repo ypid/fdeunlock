@@ -3,9 +3,15 @@
 # @license GPLv3+
 # Generate random but valid mac address for certain vendors.
 
-# Too slow ;)
-# wireshark_manuf_file="`locate wireshark-manuf`"
-wireshark_manuf_file="$HOME/Downloads/db/wireshark-manuf"
+wireshark_manuf_file="/usr/share/wireshark/manuf"
+
+if [ ! -r "$wireshark_manuf_file" ]; then
+    wireshark_manuf_file="`locate --regexp 'wireshark/manuf$' --limit 1`"
+    if [ ! -r "$wireshark_manuf_file" ]; then
+        echo "manuf file not found." 1>&2
+        exit 1
+    fi
+fi
 
 rand_mac_line=`grep -v '^#' "$wireshark_manuf_file"| \
     grep -P ' (Intl|Hwlett-|Fujitsu) ' \
