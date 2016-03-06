@@ -14,7 +14,7 @@ See http://falkhusemann.de/blog/artikel-veroffentlichungen/tauchfahrt/ for more
 information.
 """
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ import filecmp
 import configparser
 from paramiko import SSHConfig
 
+
 class Scout():
     _default_ssh_config_path = os.path.join(
         os.environ['HOME'],
@@ -58,7 +59,7 @@ class Scout():
             ),
             shell_promt_regex='~ # ',
             config_file='.config.cfg',
-            ):
+    ):
 
         self._base_config_path = base_config_path
 
@@ -72,7 +73,7 @@ class Scout():
         cfg_file_permissions = oct(os.stat(cfg_file).st_mode)
         if cfg_file_permissions[-3:] != '600':
             logging.warning(
-                "Configuration file (which usually contains passwords)"
+                u"Configuration file (which usually contains passwords)"
                 + " has more file permissions than needed ({}).".format(cfg_file_permissions[-4:])
                 + "\n    Please change this by executing the following command: chmod 0600 \'{}\'".format(cfg_file))
             sys.exit(20)
@@ -110,6 +111,11 @@ class Scout():
         """ Get password and unlock system. """
 
         child.sendline('')
+
+        if self._interactive:
+            child.interact()
+            sys.exit(0)
+
         child.expect(self._shell_promt_regex)
         if self._cfg.has_option(self._ssh_hostname, 'password'):
             passwd = self._cfg.get(self._ssh_hostname, 'password')
@@ -117,14 +123,22 @@ class Scout():
             passwd = raw_input(
                 u"Please enter the unlock password for {}".format(self._ssh_hostname))
         child.sendline(u'echo -n \'{}\' > /lib/cryptsetup/passfifo'.format(passwd))
+        logging.info(u"Entered password.")
         self._disk_unlocked = True
         self._exit_gracefully(child)
         # child.interact()
 
-    def main(self, host=None, ssh_parms=None):
+    def main(
+        self,
+        host=None,
+        ssh_parms=None,
+        interactive=False,
+    ):
+
         self._ssh_port = 22
         self._ssh_hostname = host
         self._hostname = self._ssh_hostname
+        self._interactive = interactive
 
         self._ssh_parms = ssh_parms if ssh_parms is not None else ''
 
@@ -152,17 +166,30 @@ class Scout():
                 try:
                     ssh_version_string = self._netcat(self._hostname, self._ssh_port)
                 except socket.error:
-                    logging.info(
-                        u"SSH server not responding.")
+                    logging.info(u"SSH server is not responding.")
                     sys.exit(1)
                 if self._is_normal_os(ssh_version_string):
                     logging.info(
-                        u"Normal SSH Server is present. Unlocking seems to be not necessary.")
+                        u"Normal SSH Server is present. Unlocking seems to be unnecessary.")
                     sys.exit(1)
                 elif not self._is_preboot(ssh_version_string):
                     logging.info(u"Waiting for pre-boot environment …")
                 else:  # Dropbear
-                    time.sleep(3)  # Dropbear needs a bit time to start.
+                    # time.sleep(3)  # Dropbear needs a bit time to start.
+                    child = pexpect.spawn('ssh %s' % self._ssh_parms)
+                    if self._cfg.has_option(self._ssh_hostname, 'busybox_expect'):
+                        busybox_expect = self._cfg.get(self._ssh_hostname, 'busybox_expect')
+                        logging.debug(
+                            u"Checking busybox against configured regex: {}".format(
+                                busybox_expect,
+                            )
+                        )
+                        child.expect(busybox_expect)
+                    else:
+                        child.expect(r'BusyBox')
+                    child.expect(
+                        r"Enter 'help' for a list of built-in commands.")
+                    child.expect(self._shell_promt_regex)
                     logging.info(u"Preparing pre-boot integrity check …")
                     if os.system(
                         u'cat %s | ssh %s "cat > /root/hashdeep"' % (
@@ -173,12 +200,6 @@ class Scout():
                         raise Exception(
                             'Could not copy hashdeep over to %s.' %
                             self._ssh_hostname)
-                    child = pexpect.spawn('ssh %s' % self._ssh_parms)
-                    child.expect(
-                        r'BusyBox v1\.20\.2 \(Debian 1:1\.20\.0-7\) built-in shell \(ash\)')
-                    child.expect(
-                        r"Enter 'help' for a list of built-in commands.")
-                    child.expect(self._shell_promt_regex)
                     child.sendline(u'chmod 500 /root/hashdeep')
                     if os.path.isfile(self._hash_file):
                         os.rename(self._hash_file, self._hash_file_old)
@@ -197,11 +218,17 @@ class Scout():
                     child.expect(self._shell_promt_regex)
                     child.logfile = None
                     new_hash_file_fh.close()
-                    if os.path.isfile(self._hash_file_old) and filecmp.cmp(self._hash_file, self._hash_file_old) is False:
+                    if (
+                        os.path.isfile(self._hash_file_old)
+                        and filecmp.cmp(self._hash_file, self._hash_file_old) is False
+                    ):
                         logging.warning(u"Changes from last boot checksum detected:")
                         os.system(
-                            'comm -13 "%s" "%s" | cut -d "," -f 3' %
-                            (self._hash_file, self._hash_file_old))
+                            'diff "%s" "%s"' % (
+                                self._hash_file,
+                                self._hash_file_old
+                            )
+                        )
                         if not re.match(r'YES', raw_input(u"\nDo you want to continue anyway (YES/NO)? ")):
                             self._exit_gracefully(child)
                             sys.exit(1)
@@ -223,7 +250,7 @@ if __name__ == '__main__':
 
     args = ArgumentParser(
         description=u"Check the integrity of the initrd and mount encrypted root filesystem from remote.",
-        epilog=__doc__
+        epilog=__doc__,
     )
     args.add_argument(
         '-V',
@@ -235,11 +262,19 @@ if __name__ == '__main__':
         '-H',
         '--host',
         help=u"Hostname of the remove server",
+        required=True,
     )
     args.add_argument(
         '-s',
         '--ssh-parms',
         help="Optional SSH parameters to use."
+    )
+    args.add_argument(
+        '-i',
+        '--interactive',
+        action='store_true',
+        default=False,
+        help=u"Don‘t enter the password. Start a shell session instead.",
     )
     user_parms = args.parse_args()
 
@@ -249,6 +284,9 @@ if __name__ == '__main__':
         # level=logging.INFO,
     )
 
-    print(u"SSH server not responding.")
     scout = Scout()
-    scout.main(host=user_parms.host, ssh_parms=user_parms.ssh_parms)
+    scout.main(
+        host=user_parms.host,
+        ssh_parms=user_parms.ssh_parms,
+        interactive=user_parms.interactive,
+    )

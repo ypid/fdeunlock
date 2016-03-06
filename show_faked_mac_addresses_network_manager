@@ -1,0 +1,17 @@
+#!/bin/bash
+# @author sdrfnord
+# @license GPLv3+
+# Show faked (cloned) mac addresses form the /etc/NetworkManager/system-connections/ configuration files.
+
+nm_con_conf_d='/etc/NetworkManager/system-connections'
+prefix="$1"
+
+for file in $nm_con_conf_d/*
+do
+    file_basename="$(basename "$file")"
+    mac_address="$(grep 'cloned-mac-address=' "$file" | sed 's/.*=//')"
+    if [ -n "$mac_address" ]
+    then
+        echo "$mac_address ${prefix}${file_basename}"
+    fi
+done
