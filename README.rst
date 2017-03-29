@@ -85,8 +85,8 @@ License
 .. |Read the Docs| image:: https://readthedocs.org/projects/fdeunlock/badge/?version=latest
    :target: https://fdeunlock.readthedocs.io/en/latest/
 
-.. |CII Best Practices| image:: https://bestpractices.coreinfrastructure.org/projects/744/badge
-   :target: https://bestpractices.coreinfrastructure.org/projects/744
+.. |CII Best Practices| image:: https://bestpractices.coreinfrastructure.org/projects/829/badge
+   :target: https://bestpractices.coreinfrastructure.org/projects/829
 
 .. |Version| image:: https://img.shields.io/pypi/v/fdeunlock.svg
    :target: https://pypi.python.org/pypi/fdeunlock

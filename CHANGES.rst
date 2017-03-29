@@ -26,6 +26,8 @@ Added
 
 - Add script to PyPI_ under the name `fdeunlock <https://pypi.python.org/pypi/fdeunlock>`__. [ypid_]
 
+- Acquired CII Best Practices badge for FDEunlock. [ypid_]
+
 - Add IPv6 support. [ypid_]
 
 Changed
