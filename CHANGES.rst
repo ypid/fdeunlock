@@ -24,7 +24,7 @@ Added
 - Add configurable :ref:`config_start_command <fdeunlock__ref_config_start_command>`
   for starting an offline machine. [ypid_]
 
-- TODO FIXME : Add script to PyPI_ under the name `fdeunlock <https://pypi.python.org/pypi/fdeunlock>`__. [ypid_]
+- Add script to PyPI_ under the name `fdeunlock <https://pypi.python.org/pypi/fdeunlock>`__. [ypid_]
 
 - Add IPv6 support. [ypid_]
 
