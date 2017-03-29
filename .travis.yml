@@ -10,9 +10,6 @@ python:
   - "3.6"
 
 install:
-  - "sudo add-apt-repository ppa:duggan/bats --yes"
-  - "sudo apt-get update -qq"
-  - "sudo apt-get install -qq bats"
   - "pip install -e '.[test]'"
   - "pip install -r docs/requirements.txt"
 

@@ -5,14 +5,6 @@ variables:
   GIT_SUBMODULE_STRATEGY: 'recursive'
 
 before_script:
-  - 'echo "deb http://httpredir.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/jessie-backports.list'
-  - 'find /etc/apt/sources.list /etc/apt/sources.list.d -type f -print0 | xargs --null cat'
-  - 'apt-get update -qq'
-  - 'apt-get install -qq bats'
-  # - 'apt-get install -qq bats python3-yaml python3-pretty-yaml python3-appdirs python3-dateutil python3-nose python3-freezegun python-tox flake8 pylint python3-coverage yamllint'
-  # - 'echo "deb http://httpredir.debian.org/debian stretch main" > /etc/apt/sources.list.d/stretch.list'
-  # - 'apt-get update -qq'
-  # - 'apt-get install -qq python3-pretty-yaml python-requests-cache python3-xmltodict python3-pyquery sphinx-rtd-theme-common'
   - 'pip install .'
   - 'pip3 install ".[test]"'
   - 'pip3 install -r docs/requirements.txt'
