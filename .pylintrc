@@ -1,0 +1,14 @@
+[MESSAGES CONTROL]
+
+#enable=
+
+disable=logging-format-interpolation,locally-disabled,attribute-defined-outside-init,no-name-in-module
+
+# logging-format-interpolation: TODO: logging to new-style formating.
+
+[FORMAT]
+
+max-line-length=120
+
+[VARIABLES]
+additional-builtins=FileNotFoundError
