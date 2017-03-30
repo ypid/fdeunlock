@@ -7,3 +7,5 @@
 .. _configparser: https://docs.python.org/3/library/configparser.html
 .. _cloc: https://github.com/AlDanial/cloc
 .. _Verifying PyPI and Conda Packages: http://stuartmumford.uk/blog/verifying-pypi-and-conda-packages.html
+.. _cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup
+.. _Debian cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup

@@ -31,9 +31,39 @@ Network based checkers
   Note that the link layer address is typically capturable and spoofable in a
   local network.
 
+.. _fdeunlock__ref_UnauthenticatedLatencyChecker:
+
+``UnauthenticatedLatencyChecker``
+  Checks the round trip time measured by :command:`fping` based on one ICMP
+  packet if it is within expected boundaries.
+
+  The default boundaries is 1.0 ms and can be configured using the
+  ``unauthenticated_latency_deviation`` configuration option which is a float
+  number representing the time deviation in ms.
+
+  The intention of this check together with the
+  :ref:`AuthenticatedLatencyChecker <fdeunlock__ref_AuthenticatedLatencyChecker>`
+  is to detect a variant of an `evil maid attack`_ where the host you think you
+  are just unlocking is not the one you are actually unlocking.
+  Such an attack might have different latency characteristics because even the
+  most advanced adversary is still bound by the law of physics.
+  For reference, the speed of light is 300 km/ms.
+
 
 SSH based checkers
 ------------------
+
+.. _fdeunlock__ref_AuthenticatedLatencyChecker:
+
+``AuthenticatedLatencyChecker``
+  Measure the latency over SSH and check if it is within expected boundaries.
+
+  The default boundaries are 10.0 ms and can be configured using the
+  ``authenticated_latency_deviation`` configuration option which is a float
+  number representing the time deviation in ms.
+
+  Refer to :ref:`UnauthenticatedLatencyChecker
+  <fdeunlock__ref_UnauthenticatedLatencyChecker>` for the background.
 
 .. _fdeunlock__ref_ChecksumChecker:
 
@@ -65,34 +95,24 @@ SSH based checkers
        dmesg | egrep '(DMI:|Command line:|Booting paravirtualized kernel on bare hardware)' | sed 's/^\[\s*[[:digit:].]\+\]\s*//;'
        cat /sys/devices/virtual/dmi/id/board_serial /sys/devices/virtual/dmi/id/product_uuid
        ls /dev/disk/by-id/
-       grep '^MemTotal:' /proc/meminfo
        dd if=/dev/sda bs=512 count=1 | sha512sum -
 
-  The ``diff_command`` configuration option can be used to set a different text
-  diffing program than the default `diff`.
-  Comparison is run on your local machine so note that the diffing program is
-  exposed to untrusted input.
+  .. You might want to add 2>/dev/zero to dd: Remove race condition between output of sha512sum and dd.
+
+  The ``diff_command`` configuration option can be used to set another text
+  diffing program than the default :command:`diff` command.
+  Comparison is run on your local machine. Note that the diffing program is
+  exposed to untrusted input. The files path to the trusted and the currently
+  untrusted checksum file are appended as the last two parameters to the given
+  command, in the mentioned order (trusted first; untrusted second/last).
   Example:
 
   .. code-block:: ini
 
      [DEFAULT]
-     diff_command = git diff --color-words --no-index
+     diff_command = git diff --no-index
 
   Proper remote attestation (Trusted Computing) should be implemented.
-  Feel free to add supported for this to FDEunlock :-)
+  Feel free to add support for this to FDEunlock :-)
 
   Ref: https://security.stackexchange.com/questions/46548/for-remotely-unlocking-luks-volumes-via-ssh-how-can-i-verify-integrity-before-s
-
-``AuthenticatedLatencyChecker``
-  Measure the latency over SSH and check if it is within expected boundaries.
-
-  The default boundaries are 0.01 s (10 ms) and can be configured using the
-  ``authenticated_latency_deviation`` configuration option.
-
-  The intention of this check is to detect a variant of an evil maid attack where
-  the host you think you are just unlocking is not the one you are actually
-  unlocking.
-  Such an attack might have different latency characteristics because even the
-  most advanced adversary is still bound by the law of physics like the speed
-  of light.

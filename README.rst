@@ -18,22 +18,24 @@ Checkout the following example:
 ::
 
    fdeunlock --host fde-server.example.org-initramfs
-   INFO, 2017-03-29 10:27:41,822: Host offline. Attempting to start using: virsh -c qemu:///system start crypttest
-   Domain crypttest started
+   INFO, 2017-03-29 10:27:41,822: Host offline. Attempting to start using: virsh -c qemu:///system start fde-server
+   Domain fde-server started
 
    INFO, 2017-03-29 10:27:42,726: Start command returned with: 0
    INFO, 2017-03-29 10:27:48,257: Host offline. Waiting …
    INFO, 2017-03-29 10:27:53,264: Ping result: 198.51.100.23 : [0], 84 bytes, 0.51 ms (0.51 avg, 0% loss)
-   INFO, 2017-03-29 10:27:53,269: Running Network based checkers: LinkLayerAddressChecker
+   INFO, 2017-03-29 10:27:53,270: Running Network based checkers: LinkLayerAddressChecker, UnauthenticatedLatencyChecker
    INFO, 2017-03-29 10:27:53,273: Link layer address matches the trusted once.
-   INFO, 2017-03-29 10:27:54,396: SSH session to initramfs established.
-   INFO, 2017-03-29 10:27:54,396: Running SSH based checkers: ChecksumChecker, AuthenticatedLatencyChecker
+   INFO, 2017-03-29 10:27:53,283: ICMP ping round trip time: 0.7300 ms
+   INFO, 2017-03-29 10:27:53,283: Latency is within the boundaries.
+   INFO, 2017-03-29 10:27:54,296: SSH session to initramfs established.
+   INFO, 2017-03-29 10:27:54,296: Running SSH based checkers: ChecksumChecker, AuthenticatedLatencyChecker
    INFO, 2017-03-29 10:27:57,487: Checksums match the trusted once.
-   INFO, 2017-03-29 10:27:57,559: Latency to execute a command over SSH and get the response back: 0.0716 s
-   INFO, 2017-03-29 10:27:57,560: Trusted latency: 0.060256694030762
-   INFO, 2017-03-29 10:27:57,560: Current latency: 0.07161283493041992
+   INFO, 2017-03-29 10:27:57,559: Latency to execute a command over SSH and get the response back: 71.6000 ms
+   INFO, 2017-03-29 10:27:57,560: Trusted latency: 60.256694030762
+   INFO, 2017-03-29 10:27:57,560: Current latency: 71.61283493041992
    Choose one of 'save', 'ignore' (for current run) or anything else to exit: save
-   INFO, 2017-03-29 10:28:02,739: All 3 checks passed.
+   INFO, 2017-03-29 10:28:02,739: All 4 checks passed.
    INFO, 2017-03-29 10:28:02,820: Passing key for vda3_crypt to host fde-server.example.org-initramfs.
    INFO, 2017-03-29 10:28:05,140: Could not retrieve key for vdb3_crypt (host fde-server.example.org-initramfs).
    Please enter key for vdb3_crypt (or store it in a vault):

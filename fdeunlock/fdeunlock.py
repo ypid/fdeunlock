@@ -59,7 +59,7 @@ class FdeUnlock(object):
         LOG.debug("SSH options: host: {}, port: {}".format(
             self._original_host, port,
         ))
-        start_command = self._cfg.get(
+        start_command = str(self._cfg.get(
             self._original_host, 'start_command',
             vars={
                 'originalhost': self._original_host,
@@ -68,7 +68,7 @@ class FdeUnlock(object):
                 'hostname': self._original_host.split('.')[0],
                 'domain': '.'.join(self._original_host.split('.')[1:]),
             },
-        )
+        ))
 
         while True:
             if self._is_reachable(host):
@@ -159,6 +159,7 @@ class FdeUnlock(object):
 
         if returncode == 0 and not hasattr(self, '_host_address'):
             self._host_address = ping_status[0]
+            self._ping_rtt_avg = float(ping_status[4].split('/')[1])
             LOG.debug("Set _host_address to {}.".format(self._host_address))
         return returncode
 
@@ -207,30 +208,59 @@ class FdeUnlock(object):
 
         while True:
             init_shell.sendline('cryptroot-unlock')
-            key_query_pattern = r'Please unlock disk (?P<device_name>[\w-]+):'
+            # Example: Please unlock disk sda4_crypt (/dev/disk/by-partuuid/3b014afe-1581-11e7-b65d-00163e5e6c0f):
+            key_query_pattern = r'Please unlock disk (?P<device_name0>[\w-]+)(?: \((?P<device_name1>[\w/-]+)\)):'
             try:
-                init_shell.expect(key_query_pattern)
+                cryptroot_unlock_status = init_shell.expect([key_query_pattern, 'not found'])
             except ExceptionPexpect:
                 break
 
-            key_query_re = re.match(key_query_pattern, init_shell.after)
-            device_name = key_query_re.group('device_name')
+            if cryptroot_unlock_status == 1:
+                LOG.debug("cryptroot-unlock not present on remote host, copying the version that FDEunlock includes.")
+                cryptroot_unlock_file = os.path.join(
+                    os.path.abspath(os.path.dirname(__file__)),
+                    'data', 'cryptroot-unlock',
+                )
+                # /usr/bin is also in the $PATH of the initramfs but the dir
+                # does not exist by default and I am to lazy to create it :)
+                # Also, this might not work for other distros.
+                init_shell.copy_to_remote(cryptroot_unlock_file, '/bin/cryptroot-unlock')
+                init_shell.sendline('chmod +x /bin/cryptroot-unlock')
+                init_shell.prompt()
+                continue
 
+            key_query_re = re.match(key_query_pattern, init_shell.after)
+            device_names = []
+            for device_ind in range(3):
+                try:
+                    device_name = key_query_re.group('device_name{}'.format(device_ind))
+                except IndexError:
+                    pass
+                else:
+                    device_name = device_name.lstrip('/').replace('/', '_')
+                    device_names.append(device_name)
+
+            # Bye, bye cryptroot-unlock, we can take it from here.
             init_shell.sendcontrol('c')
             init_shell.prompt()
 
-            key = self._vault.get_key(self._original_host, device_name)
+            key = None
+            for device_name in device_names:
+                key = self._vault.get_key(self._original_host, device_name)
+                if key is not None:
+                    break
+
             if key is None:
                 LOG.info("Could not retrieve key for {} (host {}).".format(
-                    device_name,
+                    ', '.join(device_names),
                     self._original_host,
                 ))
                 key = getpass("Please enter key for {} (or store it in a vault): ".format(
-                    device_name,
+                    ', '.join(device_names),
                 )).encode('utf-8')
 
             LOG.info("Passing key for {} to host {}.".format(
-                device_name,
+                ', '.join(device_names),
                 self._original_host,
             ))
             proc = subprocess.Popen(
@@ -241,7 +271,7 @@ class FdeUnlock(object):
             if proc.wait() != 0:
                 raise Exception(
                     'Could not pass key for {} to {}.'.format(
-                        device_name,
+                        ', '.join(device_names),
                         self._original_host,
                     )
                 )

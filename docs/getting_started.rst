@@ -19,6 +19,11 @@ There are also lots of additional resources available on how to set this up:
 * http://www.lug-hh.de/wp-content/uploads/kwi_cloudserver_01_fde_0.3.pdf
 * https://www.reddit.com/r/linuxadmin/comments/3ot1xk/headless_server_with_fdeluks/
 
+Note that FDEunlock makes use of the :command:`cryptroot-unlock` script which
+is only available in the `cryptsetup package`_ of Debian stretch or newer.
+FDEunlock includes the script for now to make it work out-of-the-box with older
+Debian releases and potentially other GNU/Linux distributions.
+
 FDEunlock has been successfully tested in the following configurations:
 
 * Debian jessie, dropbear 2014.65-1: IPv4 only, IPv6 only, dual stack
@@ -90,11 +95,42 @@ Providing a key using the default FileVault
 -------------------------------------------
 
 Place your key (either the passphrase or the keyfile) into
-``${FDEUNLOCK_CONFIG_DIR}/keys/${host}_${device_name}.key``. When you use a
-passphrase you will need to ensure that no newline is appended to the file (all
-common editors appended a newline automatically). One way to avoid the newline
-is to run the following command:
+``${FDEUNLOCK_CONFIG_DIR}/keys/${host}_${device_name}.key``.
+
+``${device_name}`` is either the plaintext device mapper target or the full
+ciphertext block device path with ``/`` replaced with ``_``.
+Note that the later variant depends on your :file:`/etc/crypttab`
+configuration.
+
+Consider this example :file:`/etc/crypttab` file:
+
+.. code-block:: none
+
+   sda4_crypt /dev/disk/by-partuuid/e1cd49d2-158b-11e7-99d8-00163e5e6c0f none luks
+
+Where ``sda4_crypt`` is the plaintext device mapper target of your root
+filesystem. The following two ``${device_name}`` can be used here:
+
+* ``sda4_crypt``
+* ``dev_disk_by-partuuid_e1cd49d2-158b-11e7-99d8-00163e5e6c0f``
+
+If both files exist the first one (more generic) is tested first and might need
+to be removed if it does not contain the correct password.
+The later, more explicit variant (using GPT partition UUIDs in this example) is
+generally preferred.
+
+
+When you use a passphrase you will need to ensure that no newline is appended
+to the file (all common editors appended a newline automatically). One way to
+avoid the newline is to run the following command:
 
 .. code-block:: shell
 
    echo -n 'Please enter your passphrase: '; read -rs pw; echo -n "$pw" > "${key_file}"; unset pw
+
+
+Alternatively, to generate a new passphrase you can run this command instead:
+
+.. code-block:: shell
+
+   echo -n "$(pwgen -s 123 1)" > "${key_file}"

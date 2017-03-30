@@ -59,7 +59,8 @@ def read_config():
         'start_command_shell': 'False',
         'additional_checksum_commands': '',
         'diff_command': 'diff',
-        'authenticated_latency_deviation': '0.01',
+        'authenticated_latency_deviation': '10.0',
+        'unauthenticated_latency_deviation': '1.0',
     })
     cfg.read(cfg_files)
     LOG.debug("Read configuration files: {}".format(cfg_files))

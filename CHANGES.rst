@@ -18,7 +18,7 @@ Added
 - Add Python 3 support, documentation, CI, Python package, platform
   independences, unit testing. [ypid_]
 
-- Add ``LinkLayerAddressChecker`` and ``AuthenticatedLatencyChecker``.
+- Wrote checkers: ``LinkLayerAddressChecker``, ``UnauthenticatedLatencyChecker``, ``AuthenticatedLatencyChecker``.
   Refer to :ref:`fdeunlock__ref_host_checkers` for details. [ypid_]
 
 - Add configurable :ref:`config_start_command <fdeunlock__ref_config_start_command>`

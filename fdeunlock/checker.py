@@ -21,7 +21,12 @@ from abc import ABC, abstractmethod
 import filecmp
 from hexdump import hexdump
 
-__all__ = ['LinkLayerAddressChecker', 'ChecksumChecker', 'AuthenticatedLatencyChecker']
+__all__ = [
+    'LinkLayerAddressChecker',
+    'UnauthenticatedLatencyChecker',
+    'ChecksumChecker',
+    'AuthenticatedLatencyChecker',
+]
 
 LOG = logging.getLogger(__name__)
 
@@ -159,6 +164,57 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
             return False
 
 
+class UnauthenticatedLatencyChecker(NetworkBasedChecker):
+    """
+    Check the unauthenticated latency previously measured by fping if it is within expected boundaries.
+    """
+
+    def __init__(self, unlocker):
+
+        self._unlocker = unlocker
+
+    def check(self, **kwargs):
+
+        untrusted_latency = self._unlocker._ping_rtt_avg
+        LOG.info("ICMP ping round trip time: {:.4f} ms".format(untrusted_latency))
+
+        original_host = self._unlocker._original_host
+        latency = self._unlocker._properties.getfloat(original_host, 'unauthenticated_latency', fallback=-1.0)
+        deviation = self._unlocker._cfg.getfloat(original_host, 'unauthenticated_latency_deviation')
+        if latency == -1.0:
+            LOG.info("No latency found to compare to. Trusting the current one (TOFU).")
+            self._unlocker._properties.set(original_host, 'unauthenticated_latency', str(untrusted_latency))
+            return True
+        elif latency-deviation <= untrusted_latency and untrusted_latency <= latency+deviation:
+            LOG.info("Latency is within the boundaries.")
+            return True
+
+        self._latency = latency
+        self._untrusted_latency = untrusted_latency
+        return False
+
+    def update(self):
+        LOG.info("Trusted latency: {} ms".format(
+            self._latency,
+        ))
+        LOG.info("Current latency: {} ms".format(
+            self._untrusted_latency,
+        ))
+        answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
+        if answer == 'save':
+            original_host = self._unlocker._original_host
+            self._unlocker._properties.set(
+                original_host,
+                'unauthenticated_latency',
+                str(self._untrusted_latency),
+            )
+            return True
+        elif answer == 'ignore':
+            return True
+        else:
+            return False
+
+
 class ChecksumChecker(SshBasedChecker):
     """
     Compute checksums for all files in the initramfs and compare the checksums to previously measured trusted once.
@@ -212,7 +268,11 @@ class ChecksumChecker(SshBasedChecker):
                 ' -print0'
                 #  'find /root -type f -print0'
                 #  ' | sort -z'
-                ' | xargs -0 /root/hashdeep -r -c md5,sha1,sha256 | grep -v "^[#%]" | sort -t "," -k4'
+                ' | xargs -0 /root/hashdeep -r -c md5,sha1,sha256 | grep -v "^[#%]"'
+                ' | sort -t "," -k5'
+                # Make the path /root-DdbZw2/.ssh/authorized_keys filename deterministic
+                #  by replacing it with /root-XXX/.ssh/authorized_keys
+                r' | sed "s#,/root-[[:alnum:]]\+/#,/root-XXX/#"'
             )
             shell.prompt()
             for cmd in additional_checksum_commands:
@@ -227,7 +287,7 @@ class ChecksumChecker(SshBasedChecker):
         with open(self._untrusted_checksum_file, 'r') as untrusted_checksum_fh:
             with open(self._untrusted_checksum_file + '.tmp', 'w') as untrusted_checksum_tmp_fh:
                 untrusted_checksum_tmp_fh.write(
-                    re.sub(r'[^\w#/,.:~*\n|"\' _-]', '', untrusted_checksum_fh.read()))
+                    re.sub(r'[^\w#/,.:~=*\n|"\' _-]', '', untrusted_checksum_fh.read()))
         os.rename(self._untrusted_checksum_file + '.tmp', self._untrusted_checksum_file)
 
         if not os.path.isfile(self._checksum_file):
@@ -281,8 +341,8 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         shell.expect(token)
         shell.prompt()
         end = time.time()
-        untrusted_latency = end - start
-        LOG.info("Latency to execute a command over SSH and get the response back: {:.4f} s".format(untrusted_latency))
+        untrusted_latency = (end - start) * 1000
+        LOG.info("Latency to execute a command over SSH and get the response back: {:.4f} ms".format(untrusted_latency))
 
         original_host = self._unlocker._original_host
         latency = self._unlocker._properties.getfloat(original_host, 'authenticated_latency', fallback=-1.0)
@@ -300,10 +360,10 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         return False
 
     def update(self):
-        LOG.info("Trusted latency: {}".format(
+        LOG.info("Trusted latency: {} ms".format(
             self._latency,
         ))
-        LOG.info("Current latency: {}".format(
+        LOG.info("Current latency: {} ms".format(
             self._untrusted_latency,
         ))
         answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
