@@ -54,7 +54,13 @@ def read_config():
     cfg_files.append(os.path.join(config_dir, 'config.cfg'))
     for cfg_file in cfg_files:
         ensure_permissions(cfg_file, 0o0600)
-    cfg = configparser.ConfigParser()
+    cfg = configparser.ConfigParser(defaults={
+        'start_command': None,
+        'start_command_shell': 'False',
+        'additional_checksum_commands': '',
+        'diff_command': 'diff',
+        'authenticated_latency_deviation': '0.01',
+    })
     cfg.read(cfg_files)
     LOG.debug("Read configuration files: {}".format(cfg_files))
     return cfg

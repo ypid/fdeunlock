@@ -62,7 +62,22 @@ SSH based checkers
      [DEFAULT]
      additional_checksum_commands =
        uname -a
-       dd if=/dev/vda bs=512 count=1 | sha512sum -
+       dmesg | egrep '(DMI:|Command line:|Booting paravirtualized kernel on bare hardware)' | sed 's/^\[\s*[[:digit:].]\+\]\s*//;'
+       cat /sys/devices/virtual/dmi/id/board_serial /sys/devices/virtual/dmi/id/product_uuid
+       ls /dev/disk/by-id/
+       grep '^MemTotal:' /proc/meminfo
+       dd if=/dev/sda bs=512 count=1 | sha512sum -
+
+  The ``diff_command`` configuration option can be used to set a different text
+  diffing program than the default `diff`.
+  Comparison is run on your local machine so note that the diffing program is
+  exposed to untrusted input.
+  Example:
+
+  .. code-block:: ini
+
+     [DEFAULT]
+     diff_command = git diff --color-words --no-index
 
   Proper remote attestation (Trusted Computing) should be implemented.
   Feel free to add supported for this to FDEunlock :-)

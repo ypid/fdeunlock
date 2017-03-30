@@ -44,22 +44,31 @@ class FdeUnlock(object):
 
         self._original_host = host
 
-        if host not in self._properties:
-            self._properties.add_section(host)
+        if not self._cfg.has_section(self._original_host):
+            self._cfg.add_section(self._original_host)
+        if not self._properties.has_section(self._original_host):
+            self._properties.add_section(self._original_host)
 
-        ssh_host_cfg = self._ssh_cfg.lookup(host)
+        ssh_host_cfg = self._ssh_cfg.lookup(self._original_host)
         self._address_family = self._cfg.get(
-            host, 'address_family',
+            self._original_host, 'address_family',
             fallback=ssh_host_cfg.get('addressfamily', 'any'))
-        start_command = self._cfg.get(
-            host, 'start_command', fallback=None)
-        start_command_shell = self._cfg.getboolean(
-            host, 'start_command_shell', fallback=False)
+
         port = ssh_host_cfg.get('port', 22)
-        host = ssh_host_cfg.get('hostname', host)
+        host = ssh_host_cfg.get('hostname', self._original_host)
         LOG.debug("SSH options: host: {}, port: {}".format(
-            host, port,
+            self._original_host, port,
         ))
+        start_command = self._cfg.get(
+            self._original_host, 'start_command',
+            vars={
+                'originalhost': self._original_host,
+                'host': host,
+                'ssh_port': port,
+                'hostname': self._original_host.split('.')[0],
+                'domain': '.'.join(self._original_host.split('.')[1:]),
+            },
+        )
 
         while True:
             if self._is_reachable(host):
@@ -103,17 +112,10 @@ class FdeUnlock(object):
                 if start_command is None:
                     LOG.info("Host offline. Waiting …")
                 else:
-                    command = start_command.format(
-                        originalhost=self._original_host,
-                        host=host,
-                        ssh_port=port,
-                        hostname=self._original_host.split('.')[0],
-                        domain='.'.join(self._original_host.split('.')[1:]),
-                    )
-                    LOG.info("Host offline. Attempting to start using: {}".format(command))
+                    LOG.info("Host offline. Attempting to start using: {}".format(start_command))
                     returncode = subprocess.call(
-                        command.split(' '),
-                        shell=start_command_shell
+                        start_command.split(' '),
+                        shell=self._cfg.getboolean(self._original_host, 'start_command_shell'),
                     )
                     LOG.info("Start command returned with: {}".format(returncode))
                     start_command = None
@@ -193,7 +195,7 @@ class FdeUnlock(object):
             checker = checker_class(self)
 
             violation_message = (
-                "Check {} report an unrecoverable violation causing"
+                "{} report an unrecoverable violation causing"
                 " FDEunlock to stop at this point.".format(checker_class.__name__))
             if not checker.check(shell=shell):
                 if not checker.update():

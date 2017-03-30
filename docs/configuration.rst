@@ -28,11 +28,11 @@ Each host has it’s own section. Supported options inside sections:
   The command can make use of the following tokens, which are expanded at
   runtime:
 
-  * ``{originalhost}``, hostname as it was specified on the command-line.
-  * ``{host}``, target hostname, after any substitution by ssh.
-  * ``{ssh_port}``, SSH port.
-  * ``{hostname}``, hostname without domain.
-  * ``{domain}``, domain of the host.
+  * ``%(originalhost)s``, hostname as it was specified on the command-line.
+  * ``%(host)s``, target hostname, after any substitution by ssh.
+  * ``%(ssh_port)s``, SSH port.
+  * ``%(hostname)s``, hostname without domain.
+  * ``%(domain)s``, domain of the host.
 
 ``start_command_shell``
   Boolean determining if :ref:`config_start_command <fdeunlock__ref_config_start_command>`
