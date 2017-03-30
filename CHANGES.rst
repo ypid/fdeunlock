@@ -10,7 +10,11 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 `fdeunlock master`_ - unreleased
 --------------------------------
 
-.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.6.0...master
+.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.0...master
+
+
+fdeunlock v0.7.0 - 2017-03-31
+-----------------------------
 
 Added
 ~~~~~
