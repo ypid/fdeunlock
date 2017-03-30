@@ -66,12 +66,7 @@ def get_args_parser():
         action='store_false',
         default=True,
         dest='unlock',
-        help="Don‘t pass passphrases. Start a interactive shell session after checking instead.",
-    )
-    args_parser.add_argument(
-        '-D', '--dry-run',
-        help="Don't write output.",
-        action="store_true",
+        help="Don‘t enter passphrases. Start a interactive shell session after checking instead.",
     )
 
     return args_parser
