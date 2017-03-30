@@ -3,6 +3,19 @@ Installation
 
 .. include:: includes/all.rst
 
+
+Dependencies
+------------
+
+FDEunlock makes use of a few Python and system packages. If you are using
+Debian (or a Debian based distribution), you can install them using the package
+manager prior to installing FDEunlock:
+
+.. code-block:: shell
+
+   sudo apt install python3-paramiko python3-pexpect python3-appdirs openssh-client fping
+
+
 Latest release
 --------------
 
@@ -40,6 +53,7 @@ consider cloning the ``git`` repository and installing from it:
    echo 'Check if the HEAD commit has a good signature and only proceed in that case!' && read -r fnord
    echo 'Then chose one of the commands below to install FDEunlock and its dependencies:'
    pip3 install .
+   pip3 install --user --editable .
    ./setup.py develop --user
    ./setup.py install --user
    ./setup.py install

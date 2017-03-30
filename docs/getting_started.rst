@@ -3,9 +3,13 @@ Getting started
 
 .. include:: includes/all.rst
 
+
+Server side setup
+-----------------
+
 To check and unlock a FDE server you will need to have that host ready to
-accept SSH connections in the initramfs.
-Refer to :file:`/usr/share/doc/cryptsetup//README.Debian.gz` for details.
+accept SSH connections in the initramfs. For this, the Dropbear_ SSH server is recommended.
+Refer to :file:`/usr/share/doc/cryptsetup/README.Debian.gz` for details.
 In case you use Ansible you might find debops-contrib.dropbear_initramfs_ interesting.
 
 There are also lots of additional resources available on how to set this up:
@@ -22,6 +26,15 @@ FDEunlock has been successfully tested in the following configurations:
 
 Note that you currently might need to set the :ref:`address_family
 <fdeunlock__ref_cfg_address_family>` for IPv6 only.
+
+After you setup Dropbear_ you should write down the generated SSH host key
+fingerprints over your current, hopefully verified, session. To do this,
+issue the following commands and note their output for later comparison:
+
+.. code-block:: shell
+
+   dropbearkey -y -f /etc/dropbear-initramfs/dropbear_rsa_host_key
+   dropbearkey -y -f /etc/dropbear-initramfs/dropbear_ecdsa_host_key
 
 
 Defining a host in FDEunlock
@@ -76,7 +89,11 @@ platform:
 Providing a key using the default FileVault
 -------------------------------------------
 
-Place your key (either the passphrase or the keyfile) into ``${FDEUNLOCK_CONFIG_DIR}/keys/${host}_${device_name}.key``. When you use a passphrase you will need to ensure that no newline is appended to the file (all common editors appended a newline automatically). One way to avoid the newline is to run the following command:
+Place your key (either the passphrase or the keyfile) into
+``${FDEUNLOCK_CONFIG_DIR}/keys/${host}_${device_name}.key``. When you use a
+passphrase you will need to ensure that no newline is appended to the file (all
+common editors appended a newline automatically). One way to avoid the newline
+is to run the following command:
 
 .. code-block:: shell
 
