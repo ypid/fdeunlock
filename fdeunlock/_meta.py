@@ -8,7 +8,7 @@ __version__ = '0.7.0'
 __license__ = 'AGPL-3.0'
 __author__ = 'Robin Schneider <ypid@riseup.net>'
 __copyright__ = [
-    'Copyright (C) 2013-2016 Marcel `sdrfnord` McKinnon <sdrfnord@gmx.de>',
+    'Copyright (C) 2013-2016 Marcel McKinnon <sdrfnord@gmx.de>',
     'Copyright (C) 2017 Robin Schneider <ypid@riseup.net>',
 ]
 
