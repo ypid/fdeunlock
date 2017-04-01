@@ -10,7 +10,20 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 `fdeunlock master`_ - unreleased
 --------------------------------
 
-.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.0...master
+.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.1...master
+
+
+`fdeunlock v0.7.1`_ - 2017-04-01
+--------------------------------
+
+.. _fdeunlock v0.7.1: https://gitlab.com/ypid/fdeunlock/compare/v0.7.0...v0.7.1
+
+Fixed
+~~~~~
+
+- FDEunlock tried to execute :command:`None` as command and failed in case the
+  ``start_command`` config option was not set.
+  Problem was implicit type conversation from ``None`` to ``str``. [ypid_]
 
 
 fdeunlock v0.7.0 - 2017-03-31

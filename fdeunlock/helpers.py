@@ -55,7 +55,7 @@ def read_config():
     for cfg_file in cfg_files:
         ensure_permissions(cfg_file, 0o0600)
     cfg = configparser.ConfigParser(defaults={
-        'start_command': None,
+        'start_command': 'None',  # Is converted by configparser to a str anyway.
         'start_command_shell': 'False',
         'additional_checksum_commands': '',
         'diff_command': 'diff',
