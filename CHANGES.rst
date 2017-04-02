@@ -15,7 +15,8 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 Added
 ~~~~~
 
-- Mention chkboot_ in :ref:`fdeunlock__ref_related_projects`. [ypid_]
+- Mention antievilmaid_, tpmtotp_ and chkboot_ in
+  :ref:`fdeunlock__ref_related_projects`. [ypid_]
 
 
 `fdeunlock v0.7.1`_ - 2017-04-01

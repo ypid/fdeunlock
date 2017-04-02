@@ -10,3 +10,5 @@
 .. _cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup
 .. _Debian cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup
 .. _chkboot: https://github.com/inhies/chkboot
+.. _antievilmaid: https://github.com/QubesOS/qubes-antievilmaid
+.. _tpmtotp: https://trmm.net/Tpmtotp

@@ -77,6 +77,18 @@ Either write the passphrase directly to :file:`/lib/cryptsetup/passfifo` or run
    ssh fde-server.example.org-initramfs "echo -ne 'fnord' > /lib/cryptsetup/passfifo"
 
 
+antievilmaid_
+-------------
+
+antievilmaid is a proper SOTA_ tamper detection tool for workstations using trusted boot.
+
+
+tpmtotp_
+--------
+
+tpmtotp is a proper SOTA_ tamper detection tool which takes antievilmaid_ to
+the next level.
+
 
 chkboot_
 --------
