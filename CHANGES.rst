@@ -12,6 +12,11 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 
 .. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.1...master
 
+Added
+~~~~~
+
+- Mention chkboot_ in :ref:`fdeunlock__ref_related_projects`. [ypid_]
+
 
 `fdeunlock v0.7.1`_ - 2017-04-01
 --------------------------------

@@ -1,3 +1,5 @@
+.. _fdeunlock__ref_related_projects:
+
 Related projects
 ================
 
@@ -73,6 +75,19 @@ Either write the passphrase directly to :file:`/lib/cryptsetup/passfifo` or run
 .. code-block:: shell
 
    ssh fde-server.example.org-initramfs "echo -ne 'fnord' > /lib/cryptsetup/passfifo"
+
+
+
+chkboot_
+--------
+
+chkboot is a non-`SOTA`_ Anti `Evil Maid`_ detection tool intended for workstations.
+It uses cryptographically strong checksums to measure the content of
+:file:`/boot` BUT after the decryption key has already been entered/passed to
+the machine.
+
+The functionally is similar to the :ref:`ChecksumChecker <fdeunlock__ref_ChecksumChecker>`
+of FDEunlock.
 
 
 Others?

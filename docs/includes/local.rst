@@ -9,3 +9,4 @@
 .. _Verifying PyPI and Conda Packages: http://stuartmumford.uk/blog/verifying-pypi-and-conda-packages.html
 .. _cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup
 .. _Debian cryptsetup package: https://packages.debian.org/search?keywords=cryptsetup
+.. _chkboot: https://github.com/inhies/chkboot
