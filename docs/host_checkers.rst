@@ -82,7 +82,7 @@ SSH based checkers
 
   The ``additional_checksum_commands`` configuration option can be used to
   specify additional commands for checksumming/verification. The output of
-  those commands is included in the checksum file and comparison with the
+  those commands is included in the checksum file and compared with the
   previous measurement.
   Multiple commands can be given, separated by newline.
   Example:
