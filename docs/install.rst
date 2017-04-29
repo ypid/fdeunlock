@@ -27,7 +27,7 @@ You can install FDEunlock by invoking the following commands:
    mkdir --parent /tmp/fdeunlock && cd /tmp/fdeunlock
    wget -r -nd -l 1 https://pypi.python.org/pypi/fdeunlock --accept-regex '^https://(test)?pypi\.python\.org/packages/.*\.whl.*'
    current_release="$(find . -type f -name '*.whl' | sort | tail -n 1)"
-   gpg --verify "${current_release}.asc" && pip3 install "${current_release}"
+   gpg --verify "${current_release}.asc" "${current_release}" && pip3 install --upgrade "${current_release}"
 
 Refer to `Verifying PyPI and Conda Packages`_ for more details. Note that this might pull down dependencies in an unauthenticated way! You might want to install the dependencies yourself beforehand.
 
@@ -52,7 +52,7 @@ consider cloning the ``git`` repository and installing from it:
    cd fdeunlock && git verify-commit HEAD
    echo 'Check if the HEAD commit has a good signature and only proceed in that case!' && read -r fnord
    echo 'Then chose one of the commands below to install FDEunlock and its dependencies:'
-   pip3 install .
+   pip3 install --upgrade .
    pip3 install --user --editable .
    ./setup.py develop --user
    ./setup.py install --user
