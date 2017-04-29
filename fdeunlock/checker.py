@@ -30,6 +30,8 @@ __all__ = [
 
 LOG = logging.getLogger(__name__)
 
+# pylint: disable=arguments-differ
+
 
 class CheckViolation(Exception):
     pass
@@ -127,7 +129,7 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
         link_layer_addresses = self._unlocker._properties.get(original_host, 'link_layer_addresses', fallback='')
         link_layer_addresses = [a.strip() for a in link_layer_addresses.split('\n') if a]
 
-        if len(link_layer_addresses) == 0:
+        if not link_layer_addresses:
             LOG.info("No link layer addresses found to compare to. Trusting the current once (TOFU).")
             self._unlocker._properties.set(original_host, 'link_layer_addresses', untrusted_link_layer_address)
             return True
@@ -160,8 +162,7 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
             return True
         elif answer == 'ignore':
             return True
-        else:
-            return False
+        return False
 
 
 class UnauthenticatedLatencyChecker(NetworkBasedChecker):
@@ -211,8 +212,7 @@ class UnauthenticatedLatencyChecker(NetworkBasedChecker):
             return True
         elif answer == 'ignore':
             return True
-        else:
-            return False
+        return False
 
 
 class ChecksumChecker(SshBasedChecker):
@@ -313,8 +313,7 @@ class ChecksumChecker(SshBasedChecker):
             return True
         elif answer.endswith('ignore'):
             return True
-        else:
-            return False
+        return False
 
 
 class AuthenticatedLatencyChecker(SshBasedChecker):
@@ -377,5 +376,4 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
             return True
         elif answer == 'ignore':
             return True
-        else:
-            return False
+        return False
