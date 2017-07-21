@@ -26,7 +26,7 @@ Checkout the following example:
    INFO, 2017-03-29 10:27:53,264: Ping result: 198.51.100.23 : [0], 84 bytes, 0.51 ms (0.51 avg, 0% loss)
    INFO, 2017-03-29 10:27:53,270: Running Network based checkers: LinkLayerAddressChecker, UnauthenticatedLatencyChecker
    INFO, 2017-03-29 10:27:53,273: Link layer address matches the trusted once.
-   INFO, 2017-03-29 10:27:53,283: ICMP ping round trip time: 0.7300 ms
+   INFO, 2017-03-29 10:27:53,283: ICMP ping round trip time: 0.5100 ms
    INFO, 2017-03-29 10:27:53,283: Latency is within the boundaries.
    INFO, 2017-03-29 10:27:54,296: SSH session to initramfs established.
    INFO, 2017-03-29 10:27:54,296: Running SSH based checkers: ChecksumChecker, AuthenticatedLatencyChecker
