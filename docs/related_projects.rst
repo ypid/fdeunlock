@@ -11,7 +11,7 @@ Mandos_
 Mandos has very similar goals as FDEunlock but both address different uses cases.
 The key difference is the server/client model. With Mandos you have one or more
 Mandos servers providing keys to hosts. The hosts initiate the request for a key.
-They find Mandos server either by configured IP address or using Avahi_.
+They find the Mandos server either by configured IP address or using Avahi_.
 
 On the other hand, FDEunlock works the other way around. FDEunlock is started
 by the user to initiate a connection to the host.
