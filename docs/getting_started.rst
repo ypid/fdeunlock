@@ -14,7 +14,7 @@ In case you use Ansible you might find debops-contrib.dropbear_initramfs_ intere
 
 There are also lots of additional resources available on how to set this up:
 
-* Refs: https://blog.tincho.org/posts/Setting_up_my_server:_re-installing_on_an_encripted_LVM/
+* https://blog.tincho.org/posts/Setting_up_my_server:_re-installing_on_an_encripted_LVM/
 * https://kiza.eu/journal/entry/697
 * http://www.lug-hh.de/wp-content/uploads/kwi_cloudserver_01_fde_0.3.pdf
 * https://www.reddit.com/r/linuxadmin/comments/3ot1xk/headless_server_with_fdeluks/
