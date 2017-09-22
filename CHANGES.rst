@@ -21,6 +21,9 @@ Added
 - Allow to exclude/disable checkers using :ref:`exclude_checkers
   <fdeunlock__ref_config_exclude_checkers>`. [ypid_]
 
+- Make behaviour for UTF-8 decoding errors configurable as :ref:`codec_error_action
+  <fdeunlock__ref_config_codec_error_action>`. [ypid_]
+
 Fixed
 ~~~~~
 

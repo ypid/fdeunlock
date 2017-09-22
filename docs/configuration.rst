@@ -53,5 +53,14 @@ Each host has it’s own section. Supported options inside sections:
      exclude_checkers =
        ChecksumChecker
 
+.. _fdeunlock__ref_config_codec_error_action:
+
+``codec_error_action``
+  Communication with remote systems is assumed to be UTF-8 encoded.
+  How should UTF-8 decoding errors be handled?
+  Set to ``replace`` to convert unknown bytes into the Unicode replacement character.
+  Defaults to ``strict`` which will cause a ``UnicodeDecodeError`` to be thrown
+  terminating execution immediately.
+
 :ref:`fdeunlock__ref_host_checkers` might support additional configuration options.
 Refer to the :ref:`fdeunlock__ref_host_checkers` section for details.

@@ -92,7 +92,11 @@ class FdeUnlock(object):
                     # host key issues.
                     subprocess.check_call(['ssh', self._original_host, 'true'])
 
-                    init_shell = SimplifiedPxssh(encoding='utf-8', timeout=7)
+                    init_shell = SimplifiedPxssh(
+                        encoding='utf-8',
+                        codec_errors=self._cfg.get(self._original_host, 'codec_error_action', fallback='strict'),
+                        timeout=7,
+                    )
                     init_shell.login(self._original_host)
                     LOG.info("SSH session to initramfs established.")
 
