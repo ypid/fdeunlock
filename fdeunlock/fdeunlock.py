@@ -191,10 +191,10 @@ class FdeUnlock(object):
         if not selected_checkers:
             return
 
-        exclude_checkers = self._cfg.get(
+        exclude_checkers_raw = self._cfg.get(
             self._original_host, 'exclude_checkers',
             fallback='')
-        exclude_checkers = set([a.strip() for a in exclude_checkers.split('\n') if a])
+        exclude_checkers = set([a.strip() for a in exclude_checkers_raw.split('\n') if a])
         selected_checker_names = set([c.__name__ for c in selected_checkers])
         LOG.info("Running {}s: {}".format(
             parent_class.__doc__,
