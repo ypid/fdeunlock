@@ -39,5 +39,19 @@ Each host has it’s own section. Supported options inside sections:
   is to be executed in the comforting environment of a shell – or not.
   Defaults to ``False``.
 
+.. _fdeunlock__ref_config_exclude_checkers:
+
+``exclude_checkers``
+  List of host checkers to exclude from running.
+
+  Multiple host checkers can be given, separated by newline.
+  Example:
+
+  .. code-block:: ini
+
+     [fde-server.example.org-initramfs]
+     exclude_checkers =
+       ChecksumChecker
+
 :ref:`fdeunlock__ref_host_checkers` might support additional configuration options.
 Refer to the :ref:`fdeunlock__ref_host_checkers` section for details.

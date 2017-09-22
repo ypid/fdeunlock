@@ -18,6 +18,9 @@ Added
 - Mention antievilmaid_, tpmtotp_ and chkboot_ in
   :ref:`fdeunlock__ref_related_projects`. [ypid_]
 
+- Allow to exclude/disable checkers using :ref:`exclude_checkers
+  <fdeunlock__ref_config_exclude_checkers>`. [ypid_]
+
 Fixed
 ~~~~~
 
