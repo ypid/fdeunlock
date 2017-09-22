@@ -18,6 +18,11 @@ Added
 - Mention antievilmaid_, tpmtotp_ and chkboot_ in
   :ref:`fdeunlock__ref_related_projects`. [ypid_]
 
+Fixed
+~~~~~
+
+- Fix support to control ``cryptroot-unlock`` in different configurations. [ypid_]
+
 
 `fdeunlock v0.7.1`_ - 2017-04-01
 --------------------------------

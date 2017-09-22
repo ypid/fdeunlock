@@ -209,10 +209,14 @@ class FdeUnlock(object):
         while True:
             init_shell.sendline('cryptroot-unlock')
             # Example: Please unlock disk sda4_crypt (/dev/disk/by-partuuid/3b014afe-1581-11e7-b65d-00163e5e6c0f):
-            key_query_pattern = r'Please unlock disk (?P<device_name0>[\w-]+)(?: \((?P<device_name1>[\w/-]+)\)):'
+            # Example: Please unlock disk sda2_crypt:
+            key_query_pattern = r'Please unlock disk (?P<device_name0>[\w-]+)(?: \((?P<device_name1>[\w/-]+)\))?:'
+            LOG.debug('Waiting for pattern: {}'.format(key_query_pattern))
             try:
                 cryptroot_unlock_status = init_shell.expect([key_query_pattern, 'not found'])
             except ExceptionPexpect:
+                LOG.debug('Did not find pattern: {}'.format(key_query_pattern))
+                LOG.debug('Got instead: {}'.format(init_shell.before))
                 break
 
             if cryptroot_unlock_status == 1:
@@ -237,8 +241,9 @@ class FdeUnlock(object):
                 except IndexError:
                     pass
                 else:
-                    device_name = device_name.lstrip('/').replace('/', '_')
-                    device_names.append(device_name)
+                    if device_name:
+                        device_name = device_name.lstrip('/').replace('/', '_')
+                        device_names.append(device_name)
 
             # Bye, bye cryptroot-unlock, we can take it from here.
             init_shell.sendcontrol('c')
