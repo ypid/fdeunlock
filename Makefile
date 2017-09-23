@@ -163,10 +163,11 @@ pypi-upload: build
 
 .PHONY: git-push
 git-push:
-	git push --follow-tags
+	git push gitlab --follow-tags
+	git push github --follow-tags
 
 .PHONY: release-publish
-release-publish:  pypi-register pypi-upload git-push
+release-publish: git-push pypi-register pypi-upload
 
 .PHONY: release
 release: release-prepare release-publish
