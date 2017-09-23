@@ -12,6 +12,12 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 
 .. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.1...master
 
+
+`fdeunlock v0.7.2`_ - 2017-09-23
+--------------------------------
+
+.. _fdeunlock v0.7.2: https://gitlab.com/ypid/fdeunlock/compare/v0.7.1...v0.7.2
+
 Added
 ~~~~~
 
@@ -21,7 +27,7 @@ Added
 - Allow to exclude/disable checkers using :ref:`exclude_checkers
   <fdeunlock__ref_config_exclude_checkers>`. [ypid_]
 
-- Make behaviour for UTF-8 decoding errors configurable as :ref:`codec_error_action
+- Make behavior for UTF-8 decoding errors configurable as :ref:`codec_error_action
   <fdeunlock__ref_config_codec_error_action>`. [ypid_]
 
 Fixed
