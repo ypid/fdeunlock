@@ -3,7 +3,7 @@ Meta information about FDEunlock
 """
 
 # https://stackoverflow.com/a/16084844
-__version__ = '0.7.2'
+__version__ = '0.7.3'
 
 __license__ = 'AGPL-3.0'
 __author__ = 'Robin Schneider <ypid@riseup.net>'

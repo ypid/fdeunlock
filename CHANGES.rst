@@ -10,7 +10,18 @@ and `human-readable changelog <http://keepachangelog.com/en/0.3.0/>`__.
 `fdeunlock master`_ - unreleased
 --------------------------------
 
-.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.1...master
+.. _fdeunlock master: https://gitlab.com/ypid/fdeunlock/compare/v0.7.3...master
+
+
+`fdeunlock v0.7.3`_ - 2019-07-05
+--------------------------------
+
+.. _fdeunlock v0.7.3: https://gitlab.com/ypid/fdeunlock/compare/v0.7.2...v0.7.3
+
+Fixed
+~~~~~
+
+- Fix support to use a non-default ssh port. [ypid_]
 
 
 `fdeunlock v0.7.2`_ - 2017-09-23
