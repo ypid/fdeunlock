@@ -54,7 +54,7 @@ class FdeUnlock(object):
             self._original_host, 'address_family',
             fallback=ssh_host_cfg.get('addressfamily', 'any'))
 
-        port = ssh_host_cfg.get('port', 22)
+        port = int(ssh_host_cfg.get('port', 22))
         host = ssh_host_cfg.get('hostname', self._original_host)
         LOG.debug("SSH options: host: {}, port: {}".format(
             self._original_host, port,
