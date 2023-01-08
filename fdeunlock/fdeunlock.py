@@ -59,7 +59,7 @@ class FdeUnlock(object):
         LOG.debug("SSH options: host: {}, port: {}".format(
             self._original_host, port,
         ))
-        start_command = str(self._cfg.get(
+        start_command = self._cfg.get(
             self._original_host, 'start_command',
             vars={
                 'originalhost': self._original_host,
@@ -68,7 +68,7 @@ class FdeUnlock(object):
                 'hostname': self._original_host.split('.')[0],
                 'domain': '.'.join(self._original_host.split('.')[1:]),
             },
-        ))
+        )
 
         while True:
             if self._is_reachable(host):
@@ -113,7 +113,7 @@ class FdeUnlock(object):
                 else:
                     LOG.info("Waiting for pre-boot environment …")
             else:
-                if start_command == 'None':
+                if start_command is None:
                     LOG.info("Host offline. Waiting …")
                 else:
                     LOG.info("Host offline. Attempting to start using: {}".format(start_command))
