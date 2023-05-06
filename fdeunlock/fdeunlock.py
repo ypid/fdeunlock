@@ -113,7 +113,7 @@ class FdeUnlock(object):
                 else:
                     LOG.info("Waiting for pre-boot environment …")
             else:
-                if start_command is None:
+                if start_command is None or start_command == 'None':
                     LOG.info("Host offline. Waiting …")
                 else:
                     LOG.info("Host offline. Attempting to start using: {}".format(start_command))
