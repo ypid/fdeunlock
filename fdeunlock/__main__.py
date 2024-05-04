@@ -4,5 +4,5 @@
 Command line interface of FDEunlock. Run using `python3 -m fdeunlock`.
 """
 
-from .cli import main
+from fdeunlock.cli import main
 main()

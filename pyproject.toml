@@ -1,0 +1,147 @@
+[tool.poetry]
+name = "fdeunlock"
+version = "0.7.3"
+description = "Check and unlock full disk encrypted systems via ssh"
+authors = ["Robin Schneider <ypid@riseup.net>"]
+license = "AGPL-3.0-or-later"
+readme = "README.rst"
+repository = "https://github.com/ypid/fdeunlock"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: DFSG approved",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+    "Topic :: System :: Boot :: Init",
+    "Topic :: System :: Systems Administration",
+]
+packages = [
+    { include = "fdeunlock", from = "src" },
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.com/ypid/fdeunlock/-/issues"
+"Changelog" = "https://fdeunlock.readthedocs.io/en/latest/changes.html"
+
+[tool.poetry.scripts]
+fdeunlock = "fdeunlock.cli:app"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+rich = ">=10"
+typer = {extras = ["all"], version = "^0.9.0"}
+paramiko = "^3.4.0"
+pexpect = "^4.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+pytest-cov = "^3.0"
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:tool.poetry.version"]
+version_variables = [
+    "src/fdeunlock/__init__.py:__version__",
+]
+build_command = "pip install poetry && poetry build"
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = [
+    "chore*",
+    "ci*",
+]
+
+[tool.semantic_release.changelog.environment]
+keep_trailing_newline = true
+
+[tool.semantic_release.branches.main]
+match = "main"
+
+[tool.semantic_release.branches.noop]
+match = "(?!main$)"
+prerelease = true
+
+[tool.pytest.ini_options]
+addopts = "-v -Wdefault --cov=fdeunlock --cov-report=term-missing:skip-covered"
+pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "@overload",
+    "if TYPE_CHECKING",
+    "raise NotImplementedError",
+    'if __name__ == "__main__":',
+]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+ignore = [
+    "D203", # 1 blank line required before class docstring
+    "D212", # Multi-line docstring summary should start at the first line
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D107", # Missing docstring in `__init__`
+    "D401", # First line of docstring should be in imperative mood
+]
+select = [
+    "B",   # flake8-bugbear
+    "D",   # flake8-docstrings
+    "C4",  # flake8-comprehensions
+    "S",   # flake8-bandit
+    "F",   # pyflake
+    "E",   # pycodestyle
+    "W",   # pycodestyle
+    "UP",  # pyupgrade
+    "I",   # isort
+    "RUF", # ruff specific
+]
+
+[tool.ruff.per-file-ignores]
+"tests/**/*" = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "S101",
+]
+"setup.py" = ["D100"]
+"conftest.py" = ["D100"]
+
+[tool.ruff.isort]
+known-first-party = ["fdeunlock", "tests"]
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+mypy_path = "src/"
+no_implicit_optional = true
+show_error_codes = true
+warn_unreachable = true
+warn_unused_ignores = true
+exclude = [
+    'setup.py',
+]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+allow_untyped_defs = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
