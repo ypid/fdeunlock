@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 
 """
 Vault implementations
 """
 
-from __future__ import absolute_import, division, print_function
 
-import os
 import logging
+import os
 from abc import ABC, abstractmethod
 
 from appdirs import user_config_dir
@@ -20,7 +18,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Vault(ABC):
-    """ Abstract Vault class. """
+    """Abstract Vault class."""
 
     @abstractmethod
     def get_key(self, host, device_name):
@@ -28,7 +26,7 @@ class Vault(ABC):
 
 
 class FileVault(Vault):
-    """ Simple, file based Vault implementation. """
+    """Simple, file based Vault implementation."""
 
     def __init__(self):
         super(FileVault, self).__init__()
@@ -42,8 +40,8 @@ class FileVault(Vault):
     def get_key(self, host, device_name):
         super(FileVault, self).get_key(host, device_name)
 
-        key_path = os.path.join(self._keys_dir, '{}_{}.key'.format(host, device_name))
-        LOG.debug("Trying to access key file: {}".format(key_path))
+        key_path = os.path.join(self._keys_dir, f'{host}_{device_name}.key')
+        LOG.debug(f"Trying to access key file: {key_path}")
         try:
             with open(key_path, 'rb') as key_fh:
                 return key_fh.read()

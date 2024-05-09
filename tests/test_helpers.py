@@ -1,23 +1,26 @@
-# -*- coding: utf-8 -*-
 # vim: foldmarker=[[[,]]]:foldmethod=marker
 
-from __future__ import absolute_import, division, print_function
 
 import logging
 from unittest import mock
 
-from nose.tools import assert_equal, assert_not_equal, assert_raises_regexp, nottest  # NOQA
+from nose.tools import (  # NOQA
+    assert_equal,
+    assert_not_equal,
+    assert_raises_regexp,
+    nottest,
+)
 from testfixtures import log_capture
 
 from fdeunlock import helpers
 
 
-class OsStat(object):
+class OsStat:
     def __init__(self, st_mode):
-        setattr(self, 'st_mode', st_mode)
+        self.st_mode = st_mode
 
 
-class Test():
+class Test:
 
     @mock.patch('os.chmod', autospec=True)
     @mock.patch('os.stat', return_value=OsStat(0o40777), autospec=True)

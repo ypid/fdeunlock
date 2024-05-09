@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -14,8 +13,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
 import re
+import sys
+
 sys.path.insert(0, os.path.abspath('..'))
 os.environ['PYTHONPATH'] = os.path.abspath('..')
 
@@ -87,8 +87,8 @@ master_doc = 'index'
 # General information about the project.
 author = re.search(r'^(?P<name>[^<]+) <(?P<email>.*)>$', fdeunlock.__author__)
 
-project = u'FDEunlock'
-copyright = u'2017, ' + author.group('name')
+project = 'FDEunlock'
+copyright = '2017, ' + author.group('name')
 author = author.group('name')
 
 # The version info for the project you're documenting, acts as replacement for
@@ -305,8 +305,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'fdeunlock.tex', u'FDEunlock Documentation',
-     u'Robin Schneider', 'manual'),
+    (master_doc, 'fdeunlock.tex', 'FDEunlock Documentation',
+     'Robin Schneider', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -347,7 +347,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fdeunlock', u'FDEunlock Documentation',
+    (master_doc, 'fdeunlock', 'FDEunlock Documentation',
      [author], 1)
 ]
 
@@ -362,7 +362,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'fdeunlock', u'FDEunlock Documentation',
+    (master_doc, 'fdeunlock', 'FDEunlock Documentation',
      author, 'fdeunlock', 'Check and unlock full disk encrypted systems via ssh',
      'Miscellaneous'),
 ]

@@ -1,24 +1,21 @@
-# -*- coding: utf-8 -*-
 
 """
 Pre-unlock checkers
 """
 
-from __future__ import absolute_import, division, print_function
-
-import sys
-import os
-import re
-import logging
-import subprocess
-import time
-import hashlib
-from random import SystemRandom
-from abc import ABC, abstractmethod
 
 #  import secrets
-
 import filecmp
+import hashlib
+import logging
+import os
+import re
+import subprocess
+import sys
+import time
+from abc import ABC, abstractmethod
+from random import SystemRandom
+
 from hexdump import hexdump
 
 __all__ = [
@@ -39,7 +36,6 @@ class CheckViolation(Exception):
 
 def get_default_checkers(_type=object):
     """Return list of default checkers, either the classes or names of the classes."""
-
     default_checkers = []
     if isinstance(_type, str):
         default_checkers = __all__
@@ -67,22 +63,26 @@ class HostChecker(ABC):
 
 class NetworkBasedChecker(HostChecker):  # pylint: disable=abstract-method
     """Network based checker"""
+
     pass
 
 
 class SshBasedChecker(HostChecker):  # pylint: disable=abstract-method
     """SSH based checker"""
+
     pass
 
 
 class TrustedBootChecker(NetworkBasedChecker):
     """Check trusted boot using remote attestation."""
+
     def __init__(self):
         raise NotImplementedError("Please implement ;-)")
 
 
 class TrustedBootVisSshChecker(SshBasedChecker):
     """Check trusted boot by comparing a secret sealed against TPM PCRs values."""
+
     def __init__(self):
         raise NotImplementedError("Please implement ;-)")
 
@@ -122,8 +122,8 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
         else:
             untrusted_link_layer_address = neigh_status[link_layer_ind + 1]
             if not re.match(r"^[0-9a-f]{2}([-:])[0-9a-f]{2}(\1[0-9a-f]{2}){4}$", untrusted_link_layer_address.lower()):
-                raise Exception("MAC address not valid: {}.".format(untrusted_link_layer_address))
-            LOG.debug("Link layer address: {}".format(untrusted_link_layer_address))
+                raise Exception(f"MAC address not valid: {untrusted_link_layer_address}.")
+            LOG.debug(f"Link layer address: {untrusted_link_layer_address}")
 
         original_host = self._unlocker._original_host
         link_layer_addresses = self._unlocker._properties.get(original_host, 'link_layer_addresses', fallback='')
@@ -134,8 +134,7 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
             self._unlocker._properties.set(original_host, 'link_layer_addresses', untrusted_link_layer_address)
             return True
         elif untrusted_link_layer_address in link_layer_addresses:
-            LOG.info("Link layer address matches the trusted once: {}".format(
-                untrusted_link_layer_address))
+            LOG.info(f"Link layer address matches the trusted once: {untrusted_link_layer_address}")
             return True
 
         self._link_layer_addresses = link_layer_addresses
@@ -144,13 +143,10 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
 
     def update(self):
         """Update check cache while host is in normal operation."""
-
         LOG.info("Trusted link layer addresses: {}".format(
             ', '.join(self._link_layer_addresses),
         ))
-        LOG.info("Current link layer addresses: {}".format(
-            self._untrusted_link_layer_address,
-        ))
+        LOG.info(f"Current link layer addresses: {self._untrusted_link_layer_address}")
         answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
         if answer == 'save':
             original_host = self._unlocker._original_host
@@ -177,7 +173,7 @@ class UnauthenticatedLatencyChecker(NetworkBasedChecker):
     def check(self, **kwargs):
 
         untrusted_latency = self._unlocker._ping_rtt_avg
-        LOG.info("ICMP ping round trip time: {:.4f} ms".format(untrusted_latency))
+        LOG.info(f"ICMP ping round trip time: {untrusted_latency:.4f} ms")
 
         original_host = self._unlocker._original_host
         latency = self._unlocker._properties.getfloat(original_host, 'unauthenticated_latency', fallback=-1.0)
@@ -195,12 +191,8 @@ class UnauthenticatedLatencyChecker(NetworkBasedChecker):
         return False
 
     def update(self):
-        LOG.info("Trusted latency: {} ms".format(
-            self._latency,
-        ))
-        LOG.info("Current latency: {} ms".format(
-            self._untrusted_latency,
-        ))
+        LOG.info(f"Trusted latency: {self._latency} ms")
+        LOG.info(f"Current latency: {self._untrusted_latency} ms")
         answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
         if answer == 'save':
             original_host = self._unlocker._original_host
@@ -232,10 +224,10 @@ class ChecksumChecker(SshBasedChecker):
         original_host = self._unlocker._original_host
         self._checksum_file = os.path.join(
             self._checksum_dir,
-            '{}_initramfs.list'.format(original_host))
+            f'{original_host}_initramfs.list')
         self._untrusted_checksum_file = os.path.join(
             self._checksum_dir,
-            '{}_untrusted_initramfs.list'.format(original_host))
+            f'{original_host}_untrusted_initramfs.list')
 
     def check(self, shell=None, **kwargs):
 
@@ -244,7 +236,7 @@ class ChecksumChecker(SshBasedChecker):
             'hashdeep_' + shell.get_platform()
         )
         if os.path.isfile(self.checksum_prog) is False:
-            raise IOError("File {} not found.".format(self.checksum_prog))
+            raise OSError(f"File {self.checksum_prog} not found.")
 
         shell.copy_to_remote(self.checksum_prog, '/root/hashdeep')
         shell.run_command('chmod 500 /root/hashdeep')
@@ -276,7 +268,7 @@ class ChecksumChecker(SshBasedChecker):
             )
             shell.prompt()
             for cmd in additional_checksum_commands:
-                LOG.info("Running additional command in ChecksumChecker context: {}".format(cmd))
+                LOG.info(f"Running additional command in ChecksumChecker context: {cmd}")
                 shell.logfile_read.write('\n# Custom command: ')
                 shell.sendline(cmd)
                 shell.prompt()
@@ -284,7 +276,7 @@ class ChecksumChecker(SshBasedChecker):
             shell.logfile_read = None
 
         # Sanitize input.
-        with open(self._untrusted_checksum_file, 'r') as untrusted_checksum_fh:
+        with open(self._untrusted_checksum_file) as untrusted_checksum_fh:
             with open(self._untrusted_checksum_file + '.tmp', 'w') as untrusted_checksum_tmp_fh:
                 untrusted_checksum_tmp_fh.write(
                     re.sub(r'[^\w#/,.:~=*\n|"\' _-]', '', untrusted_checksum_fh.read()))
@@ -336,12 +328,12 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         start = time.time()
         # A space at the beginning of a command usually ensures it will not end
         # up in the shell history. Does not really matter here, just good practice.
-        shell.sendline(' echo "{}"'.format(token))
+        shell.sendline(f' echo "{token}"')
         shell.expect(token)
         shell.prompt()
         end = time.time()
         untrusted_latency = (end - start) * 1000
-        LOG.info("Latency to execute a command over SSH and get the response back: {:.4f} ms".format(untrusted_latency))
+        LOG.info(f"Latency to execute a command over SSH and get the response back: {untrusted_latency:.4f} ms")
 
         original_host = self._unlocker._original_host
         latency = self._unlocker._properties.getfloat(original_host, 'authenticated_latency', fallback=-1.0)
@@ -359,12 +351,8 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         return False
 
     def update(self):
-        LOG.info("Trusted latency: {} ms".format(
-            self._latency,
-        ))
-        LOG.info("Current latency: {} ms".format(
-            self._untrusted_latency,
-        ))
+        LOG.info(f"Trusted latency: {self._latency} ms")
+        LOG.info(f"Current latency: {self._untrusted_latency} ms")
         answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
         if answer == 'save':
             original_host = self._unlocker._original_host

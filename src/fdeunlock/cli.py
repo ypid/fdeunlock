@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
 
 """
 Command line interface of fdeunlock
 """
 
-import sys
-import logging
-import textwrap
 import argparse
+import logging
+import sys
+import textwrap
 
 from .__init__ import __version__
+from .checker import CheckViolation, get_default_checkers
 from .fdeunlock import FdeUnlock
 from .vault import FileVault
-from .checker import get_default_checkers, CheckViolation
 
 __all__ = ['main']
 

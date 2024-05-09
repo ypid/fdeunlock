@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # SPDX-FileCopyrightText: 2013-2016 Marcel McKinnon <sdrfnord@gmx.de>
 # SPDX-FileCopyrightText: 2017,2024 Robin Schneider <ypid@riseup.net>
@@ -9,27 +8,31 @@
 Core of FDEunlock
 """
 
-from __future__ import absolute_import, division, print_function
 
+import logging
 import os
 import re
-import logging
-import time
 import socket
 import subprocess
+import time
 from getpass import getpass
 
 from pexpect.exceptions import ExceptionPexpect
 
-from .helpers import read_config, read_properties_config, write_properties_config, \
-    read_ssh_config, get_user_dir
-from .checker import NetworkBasedChecker, SshBasedChecker, CheckViolation
+from .checker import CheckViolation, NetworkBasedChecker, SshBasedChecker
+from .helpers import (
+    get_user_dir,
+    read_config,
+    read_properties_config,
+    read_ssh_config,
+    write_properties_config,
+)
 from .pxssh import SimplifiedPxssh
 
 LOG = logging.getLogger(__name__)
 
 
-class FdeUnlock(object):
+class FdeUnlock:
 
     def __init__(self, vault, checkers=None):
 
@@ -61,9 +64,7 @@ class FdeUnlock(object):
 
         port = int(ssh_host_cfg.get('port', 22))
         host = ssh_host_cfg.get('hostname', self._original_host)
-        LOG.debug("SSH options: host: {}, port: {}".format(
-            self._original_host, port,
-        ))
+        LOG.debug(f"SSH options: host: {self._original_host}, port: {port}")
         start_command = self._cfg.get(
             self._original_host, 'start_command',
             vars={
@@ -107,7 +108,7 @@ class FdeUnlock(object):
 
                     self.run_checkers(SshBasedChecker, init_shell)
 
-                    LOG.info("All {} checks passed.".format(len(self._checkers)))
+                    LOG.info(f"All {len(self._checkers)} checks passed.")
 
                     if not unlock:
                         init_shell.sendline()
@@ -121,12 +122,12 @@ class FdeUnlock(object):
                 if start_command is None or start_command == 'None':
                     LOG.info("Host offline. Waiting …")
                 else:
-                    LOG.info("Host offline. Attempting to start using: {}".format(start_command))
+                    LOG.info(f"Host offline. Attempting to start using: {start_command}")
                     returncode = subprocess.call(
                         start_command.split(' '),
                         shell=self._cfg.getboolean(self._original_host, 'start_command_shell'),
                     )
-                    LOG.info("Start command returned with: {}".format(returncode))
+                    LOG.info(f"Start command returned with: {returncode}")
                     start_command = None
 
             time.sleep(5)
@@ -134,16 +135,15 @@ class FdeUnlock(object):
     @staticmethod
     def _get_ssh_identification(host, port, address_family):
         """https://tools.ietf.org/html/rfc4253#section-4.2"""
-
         inet = socket.AF_INET6
         if address_family in ['any', 'inet']:
             inet = socket.AF_INET
-        LOG.debug('Connecting to socket: {}:{}'.format(host, port))
+        LOG.debug(f'Connecting to socket: {host}:{port}')
         try:
             with socket.socket(inet, socket.SOCK_STREAM) as sock:
                 sock.connect((host, port))
                 data = sock.recv(255)
-        except socket.error:
+        except OSError:
             raise Exception("SSH server is not responding.")
 
         return repr(data)
@@ -164,12 +164,12 @@ class FdeUnlock(object):
         ping_status = re.split(r'(?:\s+[=:]|,)\s+', proc.stderr.read().decode('utf-8').strip())
         ping_result = proc.stdout.read().decode('utf-8').strip()
         if ping_result:
-            LOG.info("Ping result: {}".format(ping_result))
+            LOG.info(f"Ping result: {ping_result}")
 
         if returncode == 0 and not hasattr(self, '_host_address'):
             self._host_address = ping_status[0]
             self._ping_rtt_avg = float(ping_status[4].split('/')[1])
-            LOG.debug("Set _host_address to {}.".format(self._host_address))
+            LOG.debug(f"Set _host_address to {self._host_address}.")
         return returncode
 
     def _is_reachable(self, host):
@@ -177,7 +177,7 @@ class FdeUnlock(object):
         if returncode == 0:
             return True
         elif returncode == 2:
-            raise Exception("{} could not be resolved.".format(host))
+            raise Exception(f"{host} could not be resolved.")
         else:
             return False
 
@@ -206,15 +206,15 @@ class FdeUnlock(object):
             ', '.join(selected_checker_names.difference(exclude_checkers))))
         for checker_class in selected_checkers:
             if checker_class.__name__ in exclude_checkers:
-                LOG.debug("Excluding {}.".format(checker_class.__name__))
+                LOG.debug(f"Excluding {checker_class.__name__}.")
                 continue
 
-            LOG.debug("Running {}.".format(checker_class.__name__))
+            LOG.debug(f"Running {checker_class.__name__}.")
             checker = checker_class(self)
 
             violation_message = (
-                "{} report an unrecoverable violation causing"
-                " FDEunlock to stop at this point.".format(checker_class.__name__))
+                f"{checker_class.__name__} report an unrecoverable violation causing"
+                " FDEunlock to stop at this point.")
             if not checker.check(shell=shell):
                 if not checker.update():
                     raise CheckViolation(violation_message)
@@ -222,18 +222,17 @@ class FdeUnlock(object):
 
     def unlock(self, init_shell):
         """Get passphrase and unlock system."""
-
         while True:
             init_shell.sendline('cryptroot-unlock')
             # Example: Please unlock disk sda4_crypt (/dev/disk/by-partuuid/3b014afe-1581-11e7-b65d-00163e5e6c0f):
             # Example: Please unlock disk sda2_crypt:
             key_query_pattern = r'Please unlock disk (?P<device_name0>[\w-]+)(?: \((?P<device_name1>[\w/-]+)\))?:'
-            LOG.debug('Waiting for pattern: {}'.format(key_query_pattern))
+            LOG.debug(f'Waiting for pattern: {key_query_pattern}')
             try:
                 cryptroot_unlock_status = init_shell.expect([key_query_pattern, 'not found'])
             except ExceptionPexpect:
-                LOG.debug('Did not find pattern: {}'.format(key_query_pattern))
-                LOG.debug('Got instead: {}'.format(init_shell.before))
+                LOG.debug(f'Did not find pattern: {key_query_pattern}')
+                LOG.debug(f'Got instead: {init_shell.before}')
                 break
 
             if cryptroot_unlock_status == 1:
@@ -254,7 +253,7 @@ class FdeUnlock(object):
             device_names = []
             for device_ind in range(3):
                 try:
-                    device_name = key_query_re.group('device_name{}'.format(device_ind))
+                    device_name = key_query_re.group(f'device_name{device_ind}')
                 except IndexError:
                     pass
                 else:

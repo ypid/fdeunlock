@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
 
 """
 fdeunlock helpers
 """
 
-from __future__ import absolute_import
 
-import os
-import logging
 import configparser
+import logging
+import os
 from glob import glob
 
 from appdirs import user_config_dir, user_data_dir
@@ -28,11 +26,7 @@ def ensure_permissions(path, mode):
     if previous_mode != mode:
         os.chmod(path, mode)
         LOG.info(
-            "Changed permissions of \"{}\" from {:0>4o} to {:0>4o}.".format(
-                path,
-                previous_mode,
-                mode,
-            )
+            f"Changed permissions of \"{path}\" from {previous_mode:0>4o} to {mode:0>4o}."
         )
 
 
@@ -63,7 +57,7 @@ def read_config():
         'unauthenticated_latency_deviation': '1.0',
     })
     cfg.read(cfg_files)
-    LOG.debug("Read configuration files: {}".format(cfg_files))
+    LOG.debug(f"Read configuration files: {cfg_files}")
     return cfg
 
 
@@ -73,7 +67,7 @@ def read_properties_config():
     properties_file = os.path.join(config_dir, 'properties.ini')
     ensure_permissions(properties_file, 0o0600)
     properties.read(properties_file)
-    LOG.debug("Read properties file: {}".format(properties_file))
+    LOG.debug(f"Read properties file: {properties_file}")
     return properties
 
 
@@ -97,6 +91,6 @@ def read_ssh_config():
             ssh_cfg = SSHConfig()
             ssh_cfg.parse(ssh_cfg_fh)
     except Exception as err:  # pylint: disable=broad-except
-        LOG.warning("Default SSH configuration could not be read: {}".format(err))
+        LOG.warning(f"Default SSH configuration could not be read: {err}")
 
     return ssh_cfg

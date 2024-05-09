@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 
 """
 Simplified Pxssh
 """
 
-from __future__ import absolute_import, division, print_function
 
 import logging
 import subprocess
 
 from pexpect import pxssh, spawn
+
 #  from hexdump import hexdump
 
 LOG = logging.getLogger(__name__)
@@ -18,8 +17,7 @@ LOG = logging.getLogger(__name__)
 class SimplifiedPxssh(pxssh.pxssh):
 
     def login(self, host, auto_prompt_reset=True):  # pylint: disable=arguments-differ
-        """ Radically simplified login without the 'New certificate -- always accept it.' stuff."""
-
+        """Radically simplified login without the 'New certificate -- always accept it.' stuff."""
         self._original_host = host
 
         spawn._spawn(self, 'ssh', args=[host])  # pylint: disable=protected-access
@@ -37,8 +35,7 @@ class SimplifiedPxssh(pxssh.pxssh):
         return True
 
     def run_command(self, command):
-        """ Run command and don’t expect any additional output."""
-
+        """Run command and don’t expect any additional output."""
         #  self.logfile_read = io.StringIO()
         self.sendline(command)
         self.prompt()
@@ -56,24 +53,21 @@ class SimplifiedPxssh(pxssh.pxssh):
                 self.before))
 
     def copy_to_remote(self, local_file_path, remote_file_path):
-        with open(local_file_path, 'r') as local_file_fh:
+        with open(local_file_path) as local_file_fh:
             returncode = subprocess.call(
                 ['ssh', self._original_host, 'cat', '>', remote_file_path],
                 stdin=local_file_fh)
         if returncode != 0:
             raise Exception(
-                'Could not put file {} on host {}.'.format(
-                    local_file_path,
-                    self._original_host,
-                )
+                f'Could not put file {local_file_path} on host {self._original_host}.'
             )
 
     def get_platform(self):
-        """Return our platform name 'linux_x86_64'
+        """
+        Return our platform name 'linux_x86_64'
 
         Format based on PEP 425 Compatibility Tags (wheel/pep425tags.py).
         """
-
         #  return distutils.util.get_platform().replace('.', '_').replace('-', '_')
 
         self.sendline('uname -m')
@@ -86,4 +80,4 @@ class SimplifiedPxssh(pxssh.pxssh):
         osname = self.after.strip()
         self.prompt()
 
-        return "{}_{}".format(osname, machine).replace('.', '_').replace('-', '_').lower()
+        return f"{osname}_{machine}".replace('.', '_').replace('-', '_').lower()
