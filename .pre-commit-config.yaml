@@ -10,12 +10,12 @@ ci:
 
 repos:
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.25.0
+    rev: faff6a61f4f53585a965addd06156eedf0027643 # frozen: v3.25.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: 2c9f875913ee60ca25ce70243dc24d5b6415598c # frozen: v4.6.0
     hooks:
       - id: debug-statements
       - id: check-builtin-literals
@@ -29,25 +29,25 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/python-poetry/poetry
-    rev: 1.8.3
+    rev: c85477da8a610a87133299f996f8d8a593aa7bff # frozen: 1.8.0
     hooks:
       - id: poetry-check
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: ffb6a759a979008c0e6dff86e39f4745a2d9eac4 # frozen: v3.1.0
     hooks:
       - id: prettier
         args: ["--tab-width", "2"]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.3
+    rev: 5559d0350deec43675eef448015296e1d79800bd # frozen: v0.4.3
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 3702ba224ecffbcec30af640c149f231d90aebdb # frozen: 24.4.2
     hooks:
       - id: black
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: 6e41aba91fb32e9feb741a6258eefeb9c6e4a482 # frozen: v2.2.6
     hooks:
       - id: codespell
 
