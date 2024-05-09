@@ -4,7 +4,6 @@ Pre-unlock checkers
 """
 
 
-#  import secrets
 import filecmp
 import hashlib
 import logging
