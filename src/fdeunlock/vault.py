@@ -1,8 +1,6 @@
-
 """
 Vault implementations
 """
-
 
 import logging
 import os
@@ -32,18 +30,20 @@ class FileVault(Vault):
         super(FileVault, self).__init__()
 
         # File layout copied/reused from borgbackup.
-        self._keys_dir = os.path.join(user_config_dir(appname='fdeunlock'), 'keys')
+        self._keys_dir = os.path.join(user_config_dir(appname="fdeunlock"), "keys")
 
-        os.makedirs(self._keys_dir, exist_ok=True)  # pylint: disable=unexpected-keyword-arg
+        os.makedirs(
+            self._keys_dir, exist_ok=True
+        )  # pylint: disable=unexpected-keyword-arg
         ensure_permissions(self._keys_dir, 0o0700)
 
     def get_key(self, host, device_name):
         super(FileVault, self).get_key(host, device_name)
 
-        key_path = os.path.join(self._keys_dir, f'{host}_{device_name}.key')
+        key_path = os.path.join(self._keys_dir, f"{host}_{device_name}.key")
         LOG.debug(f"Trying to access key file: {key_path}")
         try:
-            with open(key_path, 'rb') as key_fh:
+            with open(key_path, "rb") as key_fh:
                 return key_fh.read()
         except FileNotFoundError:
             return None

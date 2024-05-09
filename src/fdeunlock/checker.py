@@ -1,8 +1,6 @@
-
 """
 Pre-unlock checkers
 """
-
 
 import filecmp
 import hashlib
@@ -18,10 +16,10 @@ from random import SystemRandom
 from hexdump import hexdump
 
 __all__ = [
-    'LinkLayerAddressChecker',
-    'UnauthenticatedLatencyChecker',
-    'ChecksumChecker',
-    'AuthenticatedLatencyChecker',
+    "LinkLayerAddressChecker",
+    "UnauthenticatedLatencyChecker",
+    "ChecksumChecker",
+    "AuthenticatedLatencyChecker",
 ]
 
 LOG = logging.getLogger(__name__)
@@ -40,8 +38,7 @@ def get_default_checkers(_type=object):
         default_checkers = __all__
     else:
         for default_checker in __all__:
-            default_checkers.append(
-                getattr(sys.modules[__name__], default_checker))
+            default_checkers.append(getattr(sys.modules[__name__], default_checker))
 
     return default_checkers
 
@@ -94,46 +91,71 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
     def __init__(self, unlocker):
 
         self._unlocker = unlocker
-        self._bin_dir = os.path.join(self._unlocker._data_dir, 'bin')
+        self._bin_dir = os.path.join(self._unlocker._data_dir, "bin")
 
     def check(self, **kwargs):
 
-        ip_version = '6'
-        if self._unlocker._address_family in ['any', 'inet']:
-            ip_version = '4'
-        ip_command = ['ip', '-' + ip_version, '--oneline', 'neigh', 'show', self._unlocker._host_address]
+        ip_version = "6"
+        if self._unlocker._address_family in ["any", "inet"]:
+            ip_version = "4"
+        ip_command = [
+            "ip",
+            "-" + ip_version,
+            "--oneline",
+            "neigh",
+            "show",
+            self._unlocker._host_address,
+        ]
         proc = subprocess.Popen(
             ip_command,
             stdout=subprocess.PIPE,
             #  stderr=subprocess.PIPE,
         )
         if proc.wait() != 0:
-            raise Exception("`ip` command return with non-zero exit code. Command: {}".format(
-                ' '.join(ip_command)))
+            raise Exception(
+                "`ip` command return with non-zero exit code. Command: {}".format(
+                    " ".join(ip_command)
+                )
+            )
 
-        neigh_status = proc.stdout.read().decode('utf-8').strip().split()
+        neigh_status = proc.stdout.read().decode("utf-8").strip().split()
         try:
-            link_layer_ind = neigh_status.index('lladdr')
+            link_layer_ind = neigh_status.index("lladdr")
         except ValueError:
             link_layer_ind = -1
-            untrusted_link_layer_address = 'Unable to read link layer address'
+            untrusted_link_layer_address = "Unable to read link layer address"
             LOG.debug(untrusted_link_layer_address)
         else:
             untrusted_link_layer_address = neigh_status[link_layer_ind + 1]
-            if not re.match(r"^[0-9a-f]{2}([-:])[0-9a-f]{2}(\1[0-9a-f]{2}){4}$", untrusted_link_layer_address.lower()):
-                raise Exception(f"MAC address not valid: {untrusted_link_layer_address}.")
+            if not re.match(
+                r"^[0-9a-f]{2}([-:])[0-9a-f]{2}(\1[0-9a-f]{2}){4}$",
+                untrusted_link_layer_address.lower(),
+            ):
+                raise Exception(
+                    f"MAC address not valid: {untrusted_link_layer_address}."
+                )
             LOG.debug(f"Link layer address: {untrusted_link_layer_address}")
 
         original_host = self._unlocker._original_host
-        link_layer_addresses = self._unlocker._properties.get(original_host, 'link_layer_addresses', fallback='')
-        link_layer_addresses = [a.strip() for a in link_layer_addresses.split('\n') if a]
+        link_layer_addresses = self._unlocker._properties.get(
+            original_host, "link_layer_addresses", fallback=""
+        )
+        link_layer_addresses = [
+            a.strip() for a in link_layer_addresses.split("\n") if a
+        ]
 
         if not link_layer_addresses:
-            LOG.info("No link layer addresses found to compare to. Trusting the current once (TOFU).")
-            self._unlocker._properties.set(original_host, 'link_layer_addresses', untrusted_link_layer_address)
+            LOG.info(
+                "No link layer addresses found to compare to. Trusting the current once (TOFU)."
+            )
+            self._unlocker._properties.set(
+                original_host, "link_layer_addresses", untrusted_link_layer_address
+            )
             return True
         elif untrusted_link_layer_address in link_layer_addresses:
-            LOG.info(f"Link layer address matches the trusted once: {untrusted_link_layer_address}")
+            LOG.info(
+                f"Link layer address matches the trusted once: {untrusted_link_layer_address}"
+            )
             return True
 
         self._link_layer_addresses = link_layer_addresses
@@ -142,20 +164,24 @@ class LinkLayerAddressChecker(NetworkBasedChecker):
 
     def update(self):
         """Update check cache while host is in normal operation."""
-        LOG.info("Trusted link layer addresses: {}".format(
-            ', '.join(self._link_layer_addresses),
-        ))
+        LOG.info(
+            "Trusted link layer addresses: {}".format(
+                ", ".join(self._link_layer_addresses),
+            )
+        )
         LOG.info(f"Current link layer addresses: {self._untrusted_link_layer_address}")
-        answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
-        if answer == 'save':
+        answer = input(
+            "Choose one of 'save', 'ignore' (for current run) or anything else to exit: "
+        )
+        if answer == "save":
             original_host = self._unlocker._original_host
             self._unlocker._properties.set(
                 original_host,
-                'link_layer_addresses',
+                "link_layer_addresses",
                 self._untrusted_link_layer_address,
             )
             return True
-        elif answer == 'ignore':
+        elif answer == "ignore":
             return True
         return False
 
@@ -175,13 +201,22 @@ class UnauthenticatedLatencyChecker(NetworkBasedChecker):
         LOG.info(f"ICMP ping round trip time: {untrusted_latency:.4f} ms")
 
         original_host = self._unlocker._original_host
-        latency = self._unlocker._properties.getfloat(original_host, 'unauthenticated_latency', fallback=-1.0)
-        deviation = self._unlocker._cfg.getfloat(original_host, 'unauthenticated_latency_deviation')
+        latency = self._unlocker._properties.getfloat(
+            original_host, "unauthenticated_latency", fallback=-1.0
+        )
+        deviation = self._unlocker._cfg.getfloat(
+            original_host, "unauthenticated_latency_deviation"
+        )
         if latency == -1.0:
             LOG.info("No latency found to compare to. Trusting the current one (TOFU).")
-            self._unlocker._properties.set(original_host, 'unauthenticated_latency', str(untrusted_latency))
+            self._unlocker._properties.set(
+                original_host, "unauthenticated_latency", str(untrusted_latency)
+            )
             return True
-        elif latency-deviation <= untrusted_latency and untrusted_latency <= latency+deviation:
+        elif (
+            latency - deviation <= untrusted_latency
+            and untrusted_latency <= latency + deviation
+        ):
             LOG.info("Latency is within the boundaries.")
             return True
 
@@ -192,16 +227,18 @@ class UnauthenticatedLatencyChecker(NetworkBasedChecker):
     def update(self):
         LOG.info(f"Trusted latency: {self._latency} ms")
         LOG.info(f"Current latency: {self._untrusted_latency} ms")
-        answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
-        if answer == 'save':
+        answer = input(
+            "Choose one of 'save', 'ignore' (for current run) or anything else to exit: "
+        )
+        if answer == "save":
             original_host = self._unlocker._original_host
             self._unlocker._properties.set(
                 original_host,
-                'unauthenticated_latency',
+                "unauthenticated_latency",
                 str(self._untrusted_latency),
             )
             return True
-        elif answer == 'ignore':
+        elif answer == "ignore":
             return True
         return False
 
@@ -215,48 +252,55 @@ class ChecksumChecker(SshBasedChecker):
 
         self._unlocker = unlocker
 
-        self._bin_dir = os.path.join(self._unlocker._data_dir, 'bin')
-        self._checksum_dir = os.path.join(self._unlocker._data_dir, 'checksums')
-        os.makedirs(self._bin_dir, exist_ok=True)  # pylint: disable=unexpected-keyword-arg
-        os.makedirs(self._checksum_dir, exist_ok=True)  # pylint: disable=unexpected-keyword-arg
+        self._bin_dir = os.path.join(self._unlocker._data_dir, "bin")
+        self._checksum_dir = os.path.join(self._unlocker._data_dir, "checksums")
+        os.makedirs(
+            self._bin_dir, exist_ok=True
+        )  # pylint: disable=unexpected-keyword-arg
+        os.makedirs(
+            self._checksum_dir, exist_ok=True
+        )  # pylint: disable=unexpected-keyword-arg
 
         original_host = self._unlocker._original_host
         self._checksum_file = os.path.join(
-            self._checksum_dir,
-            f'{original_host}_initramfs.list')
+            self._checksum_dir, f"{original_host}_initramfs.list"
+        )
         self._untrusted_checksum_file = os.path.join(
-            self._checksum_dir,
-            f'{original_host}_untrusted_initramfs.list')
+            self._checksum_dir, f"{original_host}_untrusted_initramfs.list"
+        )
 
     def check(self, shell=None, **kwargs):
 
         self.checksum_prog = os.path.join(
-            self._bin_dir,
-            'hashdeep_' + shell.get_platform()
+            self._bin_dir, "hashdeep_" + shell.get_platform()
         )
         if os.path.isfile(self.checksum_prog) is False:
             raise OSError(f"File {self.checksum_prog} not found.")
 
-        shell.copy_to_remote(self.checksum_prog, '/root/hashdeep')
-        shell.run_command('chmod 500 /root/hashdeep')
+        shell.copy_to_remote(self.checksum_prog, "/root/hashdeep")
+        shell.run_command("chmod 500 /root/hashdeep")
 
         original_host = self._unlocker._original_host
-        additional_checksum_commands = self._unlocker._cfg.get(original_host, 'additional_checksum_commands')
-        additional_checksum_commands = [a.strip() for a in additional_checksum_commands.split('\n') if a]
+        additional_checksum_commands = self._unlocker._cfg.get(
+            original_host, "additional_checksum_commands"
+        )
+        additional_checksum_commands = [
+            a.strip() for a in additional_checksum_commands.split("\n") if a
+        ]
 
-        with open(self._untrusted_checksum_file, 'w') as untrusted_checksum_fh:
+        with open(self._untrusted_checksum_file, "w") as untrusted_checksum_fh:
             shell.logfile_read = untrusted_checksum_fh
             # Good luck finding a hash collision which works for md5,sha1,sha256
             # plus the length field at the same time ;-)
             # So checksum collisions will probably not be the weakest link here.
             # Not using `-r` of hashdeep because the mangpage of hashdeep warns about it.
             shell.sendline(
-                'find / -type f'
+                "find / -type f"
                 ' -not -path "/proc/*"'
                 ' -not -path "/sys/*"'
                 ' -not -path "/dev/*"'
                 ' -not -path "/run/*"'
-                ' -print0'
+                " -print0"
                 #  'find /root -type f -print0'
                 #  ' | sort -z'
                 ' | xargs -0 /root/hashdeep -r -c md5,sha1,sha256 | grep -v "^[#%]"'
@@ -267,22 +311,29 @@ class ChecksumChecker(SshBasedChecker):
             )
             shell.prompt()
             for cmd in additional_checksum_commands:
-                LOG.info(f"Running additional command in ChecksumChecker context: {cmd}")
-                shell.logfile_read.write('\n# Custom command: ')
+                LOG.info(
+                    f"Running additional command in ChecksumChecker context: {cmd}"
+                )
+                shell.logfile_read.write("\n# Custom command: ")
                 shell.sendline(cmd)
                 shell.prompt()
-            shell.logfile_read.write('\n')
+            shell.logfile_read.write("\n")
             shell.logfile_read = None
 
         # Sanitize input.
         with open(self._untrusted_checksum_file) as untrusted_checksum_fh:
-            with open(self._untrusted_checksum_file + '.tmp', 'w') as untrusted_checksum_tmp_fh:
+            with open(
+                self._untrusted_checksum_file + ".tmp", "w"
+            ) as untrusted_checksum_tmp_fh:
                 untrusted_checksum_tmp_fh.write(
-                    re.sub(r'[^\w#/,.:~=*\n|"\' _-]', '', untrusted_checksum_fh.read()))
-        os.rename(self._untrusted_checksum_file + '.tmp', self._untrusted_checksum_file)
+                    re.sub(r'[^\w#/,.:~=*\n|"\' _-]', "", untrusted_checksum_fh.read())
+                )
+        os.rename(self._untrusted_checksum_file + ".tmp", self._untrusted_checksum_file)
 
         if not os.path.isfile(self._checksum_file):
-            LOG.info("No checksums found to compare to. Trusting the current once (TOFU).")
+            LOG.info(
+                "No checksums found to compare to. Trusting the current once (TOFU)."
+            )
             os.rename(self._untrusted_checksum_file, self._checksum_file)
             return True
         elif filecmp.cmp(self._checksum_file, self._untrusted_checksum_file):
@@ -294,15 +345,19 @@ class ChecksumChecker(SshBasedChecker):
     def update(self):
         LOG.info("Deviation to trusted checksums:")
         original_host = self._unlocker._original_host
-        diff_command = self._unlocker._cfg.get(original_host, 'diff_command').split(' ')
-        subprocess.call(diff_command + [self._checksum_file, self._untrusted_checksum_file])
-        answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
+        diff_command = self._unlocker._cfg.get(original_host, "diff_command").split(" ")
+        subprocess.call(
+            diff_command + [self._checksum_file, self._untrusted_checksum_file]
+        )
+        answer = input(
+            "Choose one of 'save', 'ignore' (for current run) or anything else to exit: "
+        )
         if LOG.isEnabledFor(logging.DEBUG):
-            hexdump(answer.encode('utf-8'))
-        if answer.endswith('save'):
+            hexdump(answer.encode("utf-8"))
+        if answer.endswith("save"):
             os.rename(self._untrusted_checksum_file, self._checksum_file)
             return True
-        elif answer.endswith('ignore'):
+        elif answer.endswith("ignore"):
             return True
         return False
 
@@ -321,7 +376,7 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         #  token = secrets.token_hex(16)
         token = SystemRandom().getrandbits(64)
         token_hash = hashlib.sha256()
-        token_hash.update(str(token).encode('utf-8'))
+        token_hash.update(str(token).encode("utf-8"))
         token = token_hash.hexdigest()
 
         start = time.time()
@@ -332,16 +387,27 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
         shell.prompt()
         end = time.time()
         untrusted_latency = (end - start) * 1000
-        LOG.info(f"Latency to execute a command over SSH and get the response back: {untrusted_latency:.4f} ms")
+        LOG.info(
+            f"Latency to execute a command over SSH and get the response back: {untrusted_latency:.4f} ms"
+        )
 
         original_host = self._unlocker._original_host
-        latency = self._unlocker._properties.getfloat(original_host, 'authenticated_latency', fallback=-1.0)
-        deviation = self._unlocker._cfg.getfloat(original_host, 'authenticated_latency_deviation')
+        latency = self._unlocker._properties.getfloat(
+            original_host, "authenticated_latency", fallback=-1.0
+        )
+        deviation = self._unlocker._cfg.getfloat(
+            original_host, "authenticated_latency_deviation"
+        )
         if latency == -1.0:
             LOG.info("No latency found to compare to. Trusting the current one (TOFU).")
-            self._unlocker._properties.set(original_host, 'authenticated_latency', str(untrusted_latency))
+            self._unlocker._properties.set(
+                original_host, "authenticated_latency", str(untrusted_latency)
+            )
             return True
-        elif latency-deviation <= untrusted_latency and untrusted_latency <= latency+deviation:
+        elif (
+            latency - deviation <= untrusted_latency
+            and untrusted_latency <= latency + deviation
+        ):
             LOG.info("Latency is within the boundaries.")
             return True
 
@@ -352,15 +418,17 @@ class AuthenticatedLatencyChecker(SshBasedChecker):
     def update(self):
         LOG.info(f"Trusted latency: {self._latency} ms")
         LOG.info(f"Current latency: {self._untrusted_latency} ms")
-        answer = input("Choose one of 'save', 'ignore' (for current run) or anything else to exit: ")
-        if answer == 'save':
+        answer = input(
+            "Choose one of 'save', 'ignore' (for current run) or anything else to exit: "
+        )
+        if answer == "save":
             original_host = self._unlocker._original_host
             self._unlocker._properties.set(
                 original_host,
-                'authenticated_latency',
+                "authenticated_latency",
                 str(self._untrusted_latency),
             )
             return True
-        elif answer == 'ignore':
+        elif answer == "ignore":
             return True
         return False

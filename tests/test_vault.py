@@ -14,11 +14,10 @@ from nose.tools import (  # NOQA
 from fdeunlock import vault
 
 config_test_dir = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)),
-    'data', 'config', 'fdeunlock'
+    os.path.abspath(os.path.dirname(__file__)), "data", "config", "fdeunlock"
 )
 
-keys_test_dir = os.path.join(config_test_dir, 'keys')
+keys_test_dir = os.path.join(config_test_dir, "keys")
 
 
 class OsStat:
@@ -28,13 +27,17 @@ class OsStat:
 
 class Test:
 
-    @mock.patch('fdeunlock.vault.ensure_permissions', autospec=True)
-    @mock.patch('fdeunlock.vault.user_config_dir', return_value=config_test_dir, autospec=True)
+    @mock.patch("fdeunlock.vault.ensure_permissions", autospec=True)
+    @mock.patch(
+        "fdeunlock.vault.user_config_dir", return_value=config_test_dir, autospec=True
+    )
     def test_file_vault_init(self, mock_user_config_dir, ensure_permissions):
         vault.FileVault()
         ensure_permissions.assert_called_once_with(keys_test_dir, 0o0700)
 
-    @mock.patch('fdeunlock.vault.user_config_dir', return_value=config_test_dir, autospec=True)
+    @mock.patch(
+        "fdeunlock.vault.user_config_dir", return_value=config_test_dir, autospec=True
+    )
     def test_file_vault_get_key(self, mock_user_config_dir):
         v = vault.FileVault()
-        assert_equal(v.get_key('fde.example.org', 'sda3_crypt'), b'testkey')
+        assert_equal(v.get_key("fde.example.org", "sda3_crypt"), b"testkey")

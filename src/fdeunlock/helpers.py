@@ -1,8 +1,6 @@
-
 """
 fdeunlock helpers
 """
-
 
 import configparser
 import logging
@@ -26,16 +24,16 @@ def ensure_permissions(path, mode):
     if previous_mode != mode:
         os.chmod(path, mode)
         LOG.info(
-            f"Changed permissions of \"{path}\" from {previous_mode:0>4o} to {mode:0>4o}."
+            f'Changed permissions of "{path}" from {previous_mode:0>4o} to {mode:0>4o}.'
         )
 
 
 def get_user_dir(dir_type):
     dir_path = None
-    if dir_type == 'config':
-        dir_path = user_config_dir(appname='fdeunlock')
-    elif dir_type == 'data':
-        dir_path = user_data_dir(appname='fdeunlock')
+    if dir_type == "config":
+        dir_path = user_config_dir(appname="fdeunlock")
+    elif dir_type == "data":
+        dir_path = user_data_dir(appname="fdeunlock")
     else:
         raise NotImplementedError
     os.makedirs(dir_path, exist_ok=True)  # pylint: disable=unexpected-keyword-arg
@@ -43,28 +41,30 @@ def get_user_dir(dir_type):
 
 
 def read_config():
-    config_dir = get_user_dir('config')
-    cfg_files = glob(os.path.join(config_dir, 'config.d/*.cfg'))
-    cfg_files.append(os.path.join(config_dir, 'config.cfg'))
+    config_dir = get_user_dir("config")
+    cfg_files = glob(os.path.join(config_dir, "config.d/*.cfg"))
+    cfg_files.append(os.path.join(config_dir, "config.cfg"))
     for cfg_file in cfg_files:
         ensure_permissions(cfg_file, 0o0600)
-    cfg = configparser.ConfigParser(defaults={
-        'start_command': 'None',  # Is converted by configparser to a str anyway.
-        'start_command_shell': 'False',
-        'additional_checksum_commands': '',
-        'diff_command': 'diff',
-        'authenticated_latency_deviation': '10.0',
-        'unauthenticated_latency_deviation': '1.0',
-    })
+    cfg = configparser.ConfigParser(
+        defaults={
+            "start_command": "None",  # Is converted by configparser to a str anyway.
+            "start_command_shell": "False",
+            "additional_checksum_commands": "",
+            "diff_command": "diff",
+            "authenticated_latency_deviation": "10.0",
+            "unauthenticated_latency_deviation": "1.0",
+        }
+    )
     cfg.read(cfg_files)
     LOG.debug(f"Read configuration files: {cfg_files}")
     return cfg
 
 
 def read_properties_config():
-    config_dir = get_user_dir('config')
+    config_dir = get_user_dir("config")
     properties = configparser.ConfigParser()
-    properties_file = os.path.join(config_dir, 'properties.ini')
+    properties_file = os.path.join(config_dir, "properties.ini")
     ensure_permissions(properties_file, 0o0600)
     properties.read(properties_file)
     LOG.debug(f"Read properties file: {properties_file}")
@@ -72,18 +72,15 @@ def read_properties_config():
 
 
 def write_properties_config(properties):
-    config_dir = get_user_dir('config')
-    properties_file = os.path.join(config_dir, 'properties.ini')
-    with open(properties_file, 'w') as properties_fh:
+    config_dir = get_user_dir("config")
+    properties_file = os.path.join(config_dir, "properties.ini")
+    with open(properties_file, "w") as properties_fh:
         properties.write(properties_fh)
     ensure_permissions(properties_file, 0o0600)
 
 
 def read_ssh_config():
-    ssh_config_file = os.path.join(
-        os.environ['HOME'],
-        '.ssh',
-        'config')
+    ssh_config_file = os.path.join(os.environ["HOME"], ".ssh", "config")
 
     ssh_cfg = None
     try:

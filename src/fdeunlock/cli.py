@@ -1,4 +1,3 @@
-
 """
 Command line interface of fdeunlock
 """
@@ -13,56 +12,64 @@ from .checker import CheckViolation, get_default_checkers
 from .fdeunlock import FdeUnlock
 from .vault import FileVault
 
-__all__ = ['main']
+__all__ = ["main"]
 
 LOG = logging.getLogger(__name__)
 
 
 def get_args_parser():
     args_parser = argparse.ArgumentParser(
-        prog='fdeunlock',
-        description=textwrap.dedent("""
+        prog="fdeunlock",
+        description=textwrap.dedent(
+            """
             Check and unlock full disk encrypted systems via ssh
-        """),
+        """
+        ),
         # epilog=__doc__,
     )
     args_parser.add_argument(
-        '-V', '--version',
-        action='version',
+        "-V",
+        "--version",
+        action="version",
         version=__version__,
     )
     args_parser.add_argument(
-        '-d', '--debug',
+        "-d",
+        "--debug",
         help="Write debugging and higher to STDOUT|STDERR.",
         action="store_const",
         dest="loglevel",
         const=logging.DEBUG,
     )
     args_parser.add_argument(
-        '-v', '--verbose',
+        "-v",
+        "--verbose",
         help="Write information and higher to STDOUT|STDERR.",
         action="store_const",
         dest="loglevel",
         const=logging.INFO,
     )
     args_parser.add_argument(
-        '-q', '--quiet', '--silent',
+        "-q",
+        "--quiet",
+        "--silent",
         help="Only write errors and higher to STDOUT|STDERR.",
         action="store_const",
         dest="loglevel",
         const=logging.ERROR,
     )
     args_parser.add_argument(
-        '-H', '--host',
+        "-H",
+        "--host",
         help="Hostname of the remove server",
         required=True,
     )
     args_parser.add_argument(
-        '-n',
-        '--no-unlock',
-        action='store_false',
+        "-n",
+        "--no-unlock",
+        action="store_false",
         default=True,
-        dest='unlock',
+        dest="unlock",
         help="Don‘t enter passphrases. Start a interactive shell session after checking instead.",
     )
 
@@ -75,8 +82,8 @@ def main():
     if args.loglevel is None:
         args.loglevel = logging.INFO
     logging.basicConfig(
-        format='%(levelname)s{}, %(asctime)s: %(message)s'.format(
-            ' (%(filename)s:%(lineno)s)' if args.loglevel <= logging.DEBUG else '',
+        format="%(levelname)s{}, %(asctime)s: %(message)s".format(
+            " (%(filename)s:%(lineno)s)" if args.loglevel <= logging.DEBUG else "",
         ),
         level=args.loglevel,
     )

@@ -10,7 +10,7 @@ from nose.tools import *  # NOQA
 from fdeunlock import checker
 
 
-class Test():
+class Test:
 
     @raises(TypeError)
     def test_instantiate_abc(self):
