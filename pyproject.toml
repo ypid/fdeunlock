@@ -2,7 +2,10 @@
 name = "fdeunlock"
 version = "0.7.3"
 description = "Check and unlock full disk encrypted systems via ssh"
-authors = ["Robin Schneider <ypid@riseup.net>"]
+authors = [
+    "sdrfnord <sdrfnord@gmx.de>",
+    "Robin Schneider <ypid@riseup.net>",
+]
 license = "AGPL-3.0-or-later"
 readme = "README.rst"
 repository = "https://github.com/ypid/fdeunlock"
