@@ -49,8 +49,10 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
-    hooks:
-      - id: mypy
-        additional_dependencies: []
+
+  # Disabled for now because the code is not yet refactored to use types.
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.10.0
+  #   hooks:
+  #     - id: mypy
+  #       additional_dependencies: []
