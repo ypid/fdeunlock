@@ -6,6 +6,7 @@ authors = [
     "sdrfnord <sdrfnord@gmx.de>",
     "Robin Schneider <ypid@riseup.net>",
 ]
+maintainers = ["Robin Schneider <ypid@riseup.net>"]
 license = "AGPL-3.0-or-later"
 readme = "README.rst"
 repository = "https://github.com/ypid/fdeunlock"
