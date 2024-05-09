@@ -1,5 +1,10 @@
-"""Make the CLI runnable using python -m fdeunlock."""
+# -*- coding: utf-8 -*-
 
-from .cli import app
+"""
+Command line interface of FDEunlock. Run using `python3 -m fdeunlock`.
+"""
 
-app(prog_name="fdeunlock")
+from fdeunlock.cli import main
+
+if __name__ == '__main__':
+    main()

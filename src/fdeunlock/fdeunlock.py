@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+#
+# SPDX-FileCopyrightText: 2013-2016 Marcel McKinnon <sdrfnord@gmx.de>
+# SPDX-FileCopyrightText: 2017,2024 Robin Schneider <ypid@riseup.net>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 """
 Core of FDEunlock
