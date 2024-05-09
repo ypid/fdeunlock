@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier
+_commit: 292018d
+_src_path: https://github.com/browniebroke/pypackage-template
+add_me_as_contributor: false
+cli_name: fdeunlock
+copyright_year: 2013-2016,2017,2024
+documentation: false
+email: ypid@riseup.net
+full_name: Robin Schneider
+github_username: ypid
+has_cli: true
+initial_commit: false
+open_source_license: GNU General Public License v3
+package_name: fdeunlock
+project_name: FDEunlock
+project_short_description: Check and unlock full disk encrypted systems via ssh
+project_slug: fdeunlock
+run_poetry_install: false
+setup_github: false
+setup_pre_commit: true
+

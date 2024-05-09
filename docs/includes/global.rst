@@ -979,7 +979,6 @@
 .. _thiagotalma: https://github.com/thiagotalma
 .. _mbarcia: https://github.com/mbarcia
 .. _jacksingleton: https://github.com/jacksingleton
-.. _ser: https://github.com/ser
 .. _yuvadm: https://github.com/yuvadm
 .. _pedroluislopez: https://github.com/pedroluislopez
 .. _patrickheeney: https://github.com/patrickheeney
