@@ -184,7 +184,7 @@ class FdeUnlock(object):
     @staticmethod
     def _is_normal_os(ssh_identification):
         """True if something like SSH-2.0-OpenSSH_6.0p1 Debian-4."""
-        return re.search(r'openssh', ssh_identification, flags=re.IGNORECASE)
+        return re.search(r'openssh', ssh_identification.split(r'\n')[0], flags=re.IGNORECASE)
 
     def run_checkers(self, parent_class, shell=None):
         selected_checkers = [c for c in self._checkers if issubclass(c, parent_class)]
